@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find c:\\\\\\\\Users\\\\\\\\ezihe\\\\\\\\Desktop\\\\\\\\facereel -type f -name \"*.css\")",
+      "Bash(find c:\\\\\\\\Users\\\\\\\\ezihe\\\\\\\\Desktop\\\\\\\\facereel -type d -name \"auth\")",
+      "Bash(ls -la c:\\\\\\\\Users\\\\\\\\ezihe\\\\\\\\Desktop\\\\\\\\facereel/)",
+      "Bash(xargs grep *)"
+    ]
+  }
+}
