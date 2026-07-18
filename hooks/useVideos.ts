@@ -33,7 +33,12 @@ export function useVideosList() {
     queryFn: () => apiFetch<VideosListResponse>("/videos"),
     // Generation runs for minutes in the background — keep polling while
     // anything is still in flight so the list updates without a manual refresh.
+    // Only polls off a successful fetch: if a request is failing (e.g. an
+    // expired session), stale cached data could still show an in-progress
+    // video forever, which would otherwise keep this interval firing every
+    // 5s indefinitely — hammering a broken endpoint instead of backing off.
     refetchInterval: (query) => {
+      if (query.state.status !== "success") return false;
       const videos = query.state.data?.data ?? [];
       return videos.some((v) => IN_PROGRESS_STATUSES.includes(v.status)) ? 5000 : false;
     },
