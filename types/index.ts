@@ -8,54 +8,11 @@ export interface NavItem {
   children?: { id: string; label: string; href: string }[];
 }
 
-export interface StatCard {
-  id: string;
-  label: string;
-  value: string;
-  icon: string;
-  color: "pink" | "yellow" | "green";
-}
-
-export interface Notification {
-  id: string;
-  title: string;
-  timestamp: string;
-  read: boolean;
-}
-
-export interface VideoItem {
-  id: string;
-  title: string;
-  timeAgo: string;
-  thumbnail: string;
-}
-
-export interface SpeechItem {
-  id: string;
-  filename: string;
-  timeAgo: string;
-  duration: string;
-}
-
-export interface PanelVideo {
-  id: string;
-  title: string;
-  description: string;
-  pinned: boolean;
-  year: string;
-}
-
-export interface NicheVideo {
-  id: string;
-  label: string;
-  gradient: string;
-}
-
 export interface SeriesItem {
   id: string;
   title: string;
   description: string;
-  gradient: string;
+  icon: string;
 }
 
 export interface SeriesStep {
@@ -92,7 +49,7 @@ export interface SubtitleStyle {
 }
 
 export type VideoPlatform = "tiktok" | "instagram" | "youtube";
-export type VideoStatus = "published" | "processing" | "failed";
+export type VideoStatus = "queued" | "processing" | "ready" | "published" | "failed";
 
 export interface VideoRow {
   id: string;
@@ -102,6 +59,7 @@ export interface VideoRow {
   status: VideoStatus;
   views: string;
   postedAt: string;
+  videoUrl: string | null;
 }
 
 export interface Plan {

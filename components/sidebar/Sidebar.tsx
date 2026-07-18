@@ -10,6 +10,11 @@ import { Separator } from "@/components/ui/separator";
 import { SIDEBAR_ITEMS } from "@/lib/data";
 import type { NavItem } from "@/types";
 
+function isActivePath(pathname: string, href: string | undefined): boolean {
+  if (!href) return false;
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
+
 /* ─── Shared upgrade section ─── */
 function UpgradeSection({ compact = false }: { compact?: boolean }) {
   return (
@@ -57,7 +62,7 @@ function TabletUpgrade() {
 /* ─── Standard nav row (desktop + mobile) ─── */
 function NavRow({ item, onClose }: { item: NavItem; onClose?: () => void }) {
   const pathname = usePathname();
-  const isActive = pathname === item.href;
+  const isActive = isActivePath(pathname, item.href);
 
   return (
     <Link
@@ -79,7 +84,7 @@ function NavRow({ item, onClose }: { item: NavItem; onClose?: () => void }) {
 /* ─── Tablet nav row — labels fade in when parent sidebar expands ─── */
 function TabletNavRow({ item }: { item: NavItem }) {
   const pathname = usePathname();
-  const isActive = pathname === item.href;
+  const isActive = isActivePath(pathname, item.href);
 
   return (
     <Link

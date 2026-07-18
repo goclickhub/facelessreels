@@ -1,45 +1,87 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
-import { Mail, ArrowLeft, RefreshCw, CheckCircle } from "lucide-react";
+import { Suspense, useRef, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { ArrowLeft, Loader2, Mail, RefreshCw } from "lucide-react";
+import { useToast } from "@/hooks/useToast";
+import { useAuth } from "@/hooks/useAuth";
+import { ApiError } from "@/lib/api";
 
 export default function VerifyEmailPage() {
-  const [resending, setResending] = useState(false);
-  const [resent, setResent] = useState(false);
-  const [verified, setVerified] = useState(false);
+  return (
+    <Suspense fallback={null}>
+      <VerifyEmailForm />
+    </Suspense>
+  );
+}
 
-  const handleResend = () => {
-    setResending(true);
-    setTimeout(() => {
-      setResending(false);
-      setResent(true);
-    }, 1500);
+function VerifyEmailForm() {
+  const searchParams = useSearchParams();
+  const email = searchParams.get("email") ?? "";
+  const router = useRouter();
+  const { verifyEmailMutation, resendVerificationMutation } = useAuth();
+  const { success: toastSuccess, error: toastError } = useToast();
+
+  const [otp, setOtp] = useState<string[]>(["", "", "", "", "", ""]);
+  const [resent, setResent] = useState(false);
+  const loading = verifyEmailMutation.isPending;
+  const resending = resendVerificationMutation.isPending;
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  const handleChange = (index: number, value: string) => {
+    if (value && !/^\d$/.test(value)) return;
+    const next = [...otp];
+    next[index] = value;
+    setOtp(next);
+    if (value && index < 5) inputRefs.current[index + 1]?.focus();
   };
 
-  if (verified) {
-    return (
-      <div className="space-y-6 text-center">
-        <div className="flex justify-center">
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-500/10">
-            <CheckCircle className="h-8 w-8 text-green-500" />
-          </div>
-        </div>
-        <div className="space-y-2">
-          <h2 className="text-2xl font-bold text-[rgb(var(--foreground))]">Email verified!</h2>
-          <p className="text-sm text-[rgb(var(--muted-foreground))]">
-            Your account is ready. Let&apos;s get started.
-          </p>
-        </div>
-        <Link
-          href="/dashboard"
-          className="flex w-full items-center justify-center rounded-lg bg-[rgb(var(--primary))] py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
-        >
-          Go to Dashboard
-        </Link>
-      </div>
-    );
-  }
+  const handleKeyDown = (index: number, e: React.KeyboardEvent) => {
+    if (e.key === "Backspace" && !otp[index] && index > 0) {
+      inputRefs.current[index - 1]?.focus();
+    }
+  };
+
+  const handlePaste = (e: React.ClipboardEvent) => {
+    e.preventDefault();
+    const pasted = e.clipboardData.getData("text").slice(0, 6);
+    if (!/^\d+$/.test(pasted)) return;
+    const next = pasted.split("").concat(Array(6).fill("")).slice(0, 6);
+    setOtp(next);
+    inputRefs.current[Math.min(pasted.length, 5)]?.focus();
+  };
+
+  const handleResend = async () => {
+    try {
+      await resendVerificationMutation.mutateAsync({ email });
+      setResent(true);
+    } catch (err) {
+      const message = err instanceof ApiError ? err.message : "Something went wrong.";
+      toastError("Couldn't resend", message);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const code = otp.join("");
+    if (code.length !== 6) {
+      toastError("Incomplete code", "Please enter all 6 digits.");
+      return;
+    }
+
+    try {
+      await verifyEmailMutation.mutateAsync({ email, code });
+      toastSuccess("Email verified!", "Your account is ready.");
+      router.push("/dashboard");
+    } catch (err) {
+      const message = err instanceof ApiError ? err.message : "Something went wrong. Please try again.";
+      toastError("Verification failed", message);
+    }
+  };
+
+  const otpInputCls =
+    "h-11 w-11 rounded-lg border-2 border-[rgb(var(--border))] bg-[rgb(var(--input-bg))] text-center text-lg font-semibold text-[rgb(var(--foreground))] outline-none transition focus:border-[rgb(var(--primary))] focus:ring-2 focus:ring-[rgb(var(--primary))]/20";
 
   return (
     <div className="space-y-6">
@@ -64,43 +106,63 @@ export default function VerifyEmailPage() {
           Verify your email
         </h2>
         <p className="text-sm text-[rgb(var(--muted-foreground))]">
-          We sent a verification link to{" "}
-          <span className="font-medium text-[rgb(var(--foreground))]">you@example.com</span>
+          Enter the 6-digit code we sent to{" "}
+          <span className="font-medium text-[rgb(var(--foreground))]">{email || "your email"}</span>
         </p>
       </div>
 
-      <div className="space-y-3 rounded-xl border border-[rgb(var(--border))] bg-[rgb(var(--card))] p-5">
-        {[
-          { step: 1, text: <>Open the email from <span className="font-medium text-[rgb(var(--foreground))]">FacelessReels</span></> },
-          { step: 2, text: <>Click the <span className="font-medium text-[rgb(var(--foreground))]">Verify email</span> button in the email</> },
-          { step: 3, text: <>You&apos;ll be redirected back automatically</> },
-        ].map(({ step, text }) => (
-          <div key={step} className="flex items-start gap-3">
-            <div
-              className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold"
-              style={{
-                background: "rgb(var(--primary) / 0.12)",
-                color: "rgb(var(--primary))",
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <div className="flex items-center justify-between gap-2">
+          {otp.slice(0, 3).map((digit, i) => (
+            <input
+              key={i}
+              ref={(el) => {
+                inputRefs.current[i] = el;
               }}
-            >
-              {step}
-            </div>
-            <p className="text-sm text-[rgb(var(--muted-foreground))]">{text}</p>
+              type="text"
+              inputMode="numeric"
+              maxLength={1}
+              value={digit}
+              onChange={(e) => handleChange(i, e.target.value)}
+              onKeyDown={(e) => handleKeyDown(i, e)}
+              onPaste={i === 0 ? handlePaste : undefined}
+              className={otpInputCls}
+            />
+          ))}
+          <div className="flex items-center justify-center">
+            <div className="h-2 w-2 rounded-full bg-[rgb(var(--muted-foreground))]" />
           </div>
-        ))}
-      </div>
+          {otp.slice(3, 6).map((digit, i) => (
+            <input
+              key={i + 3}
+              ref={(el) => {
+                inputRefs.current[i + 3] = el;
+              }}
+              type="text"
+              inputMode="numeric"
+              maxLength={1}
+              value={digit}
+              onChange={(e) => handleChange(i + 3, e.target.value)}
+              onKeyDown={(e) => handleKeyDown(i + 3, e)}
+              className={otpInputCls}
+            />
+          ))}
+        </div>
 
-      <button
-        onClick={() => setVerified(true)}
-        className="flex w-full items-center justify-center rounded-lg bg-[rgb(var(--primary))] py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
-      >
-        I&apos;ve verified my email
-      </button>
+        <button
+          type="submit"
+          disabled={loading}
+          className="flex w-full items-center justify-center gap-2 rounded-lg bg-[rgb(var(--primary))] py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-60"
+        >
+          {loading && <Loader2 className="h-4 w-4 animate-spin" />}
+          {loading ? "Verifying..." : "Verify email"}
+        </button>
+      </form>
 
       <p className="text-center text-sm text-[rgb(var(--muted-foreground))]">
         Didn&apos;t receive it?{" "}
         {resent ? (
-          <span className="font-medium text-green-500">Email resent!</span>
+          <span className="font-medium text-green-500">Code resent!</span>
         ) : (
           <button
             onClick={handleResend}
@@ -108,7 +170,7 @@ export default function VerifyEmailPage() {
             className="inline-flex items-center gap-1 font-medium text-[rgb(var(--primary))] hover:underline disabled:opacity-60"
           >
             {resending && <RefreshCw className="h-3 w-3 animate-spin" />}
-            Resend email
+            Resend code
           </button>
         )}
       </p>

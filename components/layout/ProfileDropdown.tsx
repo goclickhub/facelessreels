@@ -2,13 +2,14 @@
 
 import { useRef, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { LogOut, ChevronDown, User, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ModeToggle } from "@/components/ui/ModeToggle";
 import { Separator } from "@/components/ui/separator";
 import { LogoutModal } from "@/components/ui/LogoutModal";
 import { useClickOutside } from "@/hooks/useClickOutside";
+import { useAuth } from "@/hooks/useAuth";
 
 const MENU_ITEMS = [
   { id: "account", label: "Account", icon: User, href: "/my-account" },
@@ -17,10 +18,26 @@ const MENU_ITEMS = [
 
 export function ProfileDropdown() {
   const pathname = usePathname();
+  const router = useRouter();
+  const { user, logoutMutation } = useAuth();
   const [open, setOpen] = useState(false);
   const [logoutOpen, setLogoutOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   useClickOutside(ref, () => setOpen(false));
+
+  const initials = user?.name
+    ? user.name
+        .split(" ")
+        .map((part) => part[0])
+        .slice(0, 2)
+        .join("")
+        .toUpperCase()
+    : "";
+
+  const handleLogout = () => {
+    setLogoutOpen(false);
+    logoutMutation.mutateAsync().finally(() => router.push("/sign-in"));
+  };
 
   return (
     <>
@@ -32,17 +49,22 @@ export function ProfileDropdown() {
           aria-label="Profile menu"
         >
           {/* Avatar */}
-          <div className="w-9 h-9 rounded-full bg-[rgb(var(--primary))] flex items-center justify-center shrink-0">
-            <span className="text-white text-[12px] font-bold select-none">GC</span>
+          <div className="w-9 h-9 rounded-full bg-[rgb(var(--primary))] flex items-center justify-center shrink-0 overflow-hidden">
+            {user?.avatarUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={user.avatarUrl} alt={user.name} className="w-full h-full object-cover" />
+            ) : (
+              <span className="text-white text-[12px] font-bold select-none">{initials}</span>
+            )}
           </div>
 
           {/* Name + plan */}
           <div className="hidden sm:block text-left leading-tight">
             <p className="text-[13px] font-semibold text-[rgb(var(--foreground))]">
-              Great Chidan
+              {user?.name ?? ""}
             </p>
             <p className="text-[11px] text-[rgb(var(--muted-foreground))]">
-              Free
+              {user?.plan ?? ""}
             </p>
           </div>
 
@@ -105,10 +127,7 @@ export function ProfileDropdown() {
       </div>
 
       {logoutOpen && (
-        <LogoutModal
-          onConfirm={() => setLogoutOpen(false)}
-          onCancel={() => setLogoutOpen(false)}
-        />
+        <LogoutModal onConfirm={handleLogout} onCancel={() => setLogoutOpen(false)} />
       )}
     </>
   );

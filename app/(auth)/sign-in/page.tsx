@@ -2,8 +2,11 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Mail, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/useToast";
+import { useAuth } from "@/hooks/useAuth";
+import { ApiError } from "@/lib/api";
 import GoogleButton from "@/components/shared/GoogleButton";
 import PasswordInput from "@/components/shared/PasswordInput";
 
@@ -14,20 +17,25 @@ export default function SignInPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [remember, setRemember] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const { loginMutation } = useAuth();
   const { success: toastSuccess, error: toastError } = useToast();
+  const router = useRouter();
+  const loading = loginMutation.isPending;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      if (email && password) {
-        toastSuccess("Welcome back!", "You have been signed in successfully.");
-      } else {
-        toastError("Sign in failed", "Invalid email or password.");
+    try {
+      await loginMutation.mutateAsync({ email, password });
+      toastSuccess("Welcome back!", "You have been signed in successfully.");
+      router.push("/dashboard");
+    } catch (err) {
+      if (err instanceof ApiError && err.code === "EMAIL_NOT_VERIFIED") {
+        router.push(`/verify-email?email=${encodeURIComponent(email)}`);
+        return;
       }
-    }, 2000);
+      const message = err instanceof ApiError ? err.message : "Something went wrong. Please try again.";
+      toastError("Sign in failed", message);
+    }
   };
 
   return (

@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import SettingsSectionRow from "./SettingsSectionRow";
+import { useToast } from "@/hooks/useToast";
 
 const PLATFORMS = [
   {
@@ -28,10 +28,11 @@ const PLATFORMS = [
 ];
 
 export default function PlatformsTab() {
-  const [connected, setConnected] = useState<Record<string, boolean>>({});
+  const { success: toastSuccess } = useToast();
 
-  const toggle = (id: string) =>
-    setConnected((prev) => ({ ...prev, [id]: !prev[id] }));
+  const handleConnect = () => {
+    toastSuccess("Coming soon", "Connecting real social accounts isn't available yet.");
+  };
 
   return (
     <div className="space-y-1">
@@ -46,14 +47,10 @@ export default function PlatformsTab() {
               {platform.letter}
             </div>
             <button
-              onClick={() => toggle(platform.id)}
-              className={`h-7 px-3 rounded-lg text-[11px] font-semibold transition-colors cursor-pointer ${
-                connected[platform.id]
-                  ? "bg-red-100 text-red-600 hover:bg-red-200 dark:bg-red-950/40 dark:text-red-400"
-                  : "bg-[rgb(var(--primary))] text-white hover:opacity-90"
-              }`}
+              onClick={handleConnect}
+              className="h-7 px-3 rounded-lg text-[11px] font-semibold transition-colors cursor-pointer bg-[rgb(var(--muted))] text-[rgb(var(--muted-foreground))] hover:bg-[rgb(var(--muted))]/70"
             >
-              {connected[platform.id] ? "Disconnect" : "Connect"}
+              Coming soon
             </button>
           </div>
         </SettingsSectionRow>

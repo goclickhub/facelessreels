@@ -34,9 +34,9 @@ export default function ChatbotButton() {
               </div>
               <div>
                 <p className="text-[12px] font-bold text-white">
-                  VideoDual Support
+                  FacelessReels Support
                 </p>
-                <p className="text-[10px] text-white/70">We reply instantly</p>
+                <p className="text-[10px] text-white/70">Coming soon</p>
               </div>
             </div>
             <button
@@ -71,7 +71,7 @@ export default function ChatbotButton() {
                 border border-[rgb(var(--border))]"
               >
                 <p className="text-[11px] text-[rgb(var(--foreground))] leading-relaxed">
-                  Hi! 👋 How can we help you today?
+                  Live chat support isn&apos;t available yet — check back soon! 👋
                 </p>
               </div>
             </div>
@@ -85,18 +85,20 @@ export default function ChatbotButton() {
             <input
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              placeholder="Type a message..."
+              placeholder="Coming soon..."
+              disabled
               className="flex-1 h-8 px-3 text-[11px] rounded-md
                 bg-[rgb(var(--muted))] border border-[rgb(var(--border))]
                 text-[rgb(var(--foreground))]
                 placeholder:text-[rgb(var(--muted-foreground))]
+                cursor-not-allowed opacity-70
                 focus:outline-none focus:ring-1 focus:ring-[rgb(var(--ring))]/40"
             />
             <button
-              onClick={() => setMessage("")}
+              disabled
               className="w-8 h-8 rounded-md bg-[rgb(var(--primary))]
                 flex items-center justify-center text-white
-                hover:opacity-90 transition-opacity cursor-pointer shrink-0"
+                opacity-60 cursor-not-allowed transition-opacity shrink-0"
             >
               <Send size={13} />
             </button>

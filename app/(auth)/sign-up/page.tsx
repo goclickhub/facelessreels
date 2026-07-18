@@ -2,8 +2,11 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Mail, User, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/useToast";
+import { useAuth } from "@/hooks/useAuth";
+import { ApiError } from "@/lib/api";
 import GoogleButton from "@/components/shared/GoogleButton";
 import PasswordInput from "@/components/shared/PasswordInput";
 
@@ -11,16 +14,31 @@ const inputCls =
   "w-full rounded-lg border border-[rgb(var(--border))] bg-[rgb(var(--input-bg))] text-[rgb(var(--foreground))] placeholder:text-[rgb(var(--muted-foreground))] text-sm px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[rgb(var(--primary))]/30 transition";
 
 export default function SignUpPage() {
-  const [loading, setLoading] = useState(false);
-  const { success: toastSuccess } = useToast();
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const { registerMutation } = useAuth();
+  const { success: toastSuccess, error: toastError } = useToast();
+  const router = useRouter();
+  const loading = registerMutation.isPending;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
+
+    if (password !== confirm) {
+      toastError("Passwords don't match", "Please make sure both passwords are the same.");
+      return;
+    }
+
+    try {
+      await registerMutation.mutateAsync({ name, email, password });
       toastSuccess("Account created!", "Please check your email to verify your account.");
-    }, 2000);
+      router.push(`/verify-email?email=${encodeURIComponent(email)}`);
+    } catch (err) {
+      const message = err instanceof ApiError ? err.message : "Something went wrong. Please try again.";
+      toastError("Sign up failed", message);
+    }
   };
 
   return (
@@ -53,6 +71,8 @@ export default function SignUpPage() {
               id="name"
               type="text"
               placeholder="John Doe"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
               required
               className={`${inputCls} pl-9`}
             />
@@ -69,6 +89,8 @@ export default function SignUpPage() {
               id="email"
               type="email"
               placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               required
               className={`${inputCls} pl-9`}
             />
@@ -79,14 +101,27 @@ export default function SignUpPage() {
           <label htmlFor="password" className="text-sm font-medium text-[rgb(var(--foreground))]">
             Password
           </label>
-          <PasswordInput id="password" placeholder="Min. 8 characters" required />
+          <PasswordInput
+            id="password"
+            placeholder="Min. 8 characters"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            minLength={8}
+            required
+          />
         </div>
 
         <div className="space-y-1.5">
           <label htmlFor="confirm" className="text-sm font-medium text-[rgb(var(--foreground))]">
             Confirm password
           </label>
-          <PasswordInput id="confirm" placeholder="Repeat your password" required />
+          <PasswordInput
+            id="confirm"
+            placeholder="Repeat your password"
+            value={confirm}
+            onChange={(e) => setConfirm(e.target.value)}
+            required
+          />
         </div>
 
         <div className="flex items-start gap-2">

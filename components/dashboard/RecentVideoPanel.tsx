@@ -1,50 +1,65 @@
-import { Play, SlidersHorizontal } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { PANEL_VIDEOS } from "@/lib/data";
-import type { PanelVideo } from "@/types";
+"use client";
 
-function VideoCard({ video }: { video: PanelVideo }) {
+import Link from "next/link";
+import { Play, Loader2, XCircle } from "lucide-react";
+import { useVideosList } from "@/hooks/useVideos";
+import type { Video } from "@/hooks/useVideos";
+
+const STATUS_LABEL: Record<string, string> = {
+  queued: "Queued",
+  processing: "Processing…",
+  ready: "Ready",
+  published: "Published",
+  failed: "Failed",
+};
+
+function VideoCard({ video }: { video: Video }) {
+  const inProgress = video.status === "queued" || video.status === "processing";
+
   return (
     <div className="flex flex-col gap-2">
       {/* Thumbnail */}
       <div
-        className="relative w-full rounded-xl overflow-hidden group cursor-pointer"
+        className="relative w-full rounded-xl overflow-hidden group cursor-pointer bg-linear-to-br from-neutral-800 via-stone-700 to-neutral-950"
         style={{ aspectRatio: "16/10" }}
       >
-        <div className="absolute inset-0 bg-linear-to-br from-neutral-800 via-stone-700 to-neutral-950" />
-        <div className="absolute inset-0 opacity-40 bg-[radial-gradient(ellipse_at_30%_40%,#b45309_0%,transparent_60%)]" />
-
-        {/* Pinned badge */}
-        {video.pinned && (
-          <span className="absolute top-2 left-2 z-10 bg-red-500 text-white text-[9px] font-bold px-2 py-0.5 rounded">
-            Pinned
-          </span>
+        {video.thumbnailUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={video.thumbnailUrl} alt={video.title} className="absolute inset-0 h-full w-full object-cover" />
+        ) : (
+          <div className="absolute inset-0 opacity-40 bg-[radial-gradient(ellipse_at_30%_40%,#b45309_0%,transparent_60%)]" />
         )}
 
-        {/* Play button */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center group-hover:bg-white/30 transition-colors">
-            <Play size={14} className="text-white ml-0.5" fill="white" />
-          </div>
-        </div>
-
-        {/* Year */}
-        <span className="absolute bottom-2 right-2 text-white text-[10px] font-semibold drop-shadow">
-          {video.year}
+        {/* Status badge */}
+        <span className="absolute top-2 left-2 z-10 bg-black/60 text-white text-[9px] font-bold px-2 py-0.5 rounded flex items-center gap-1">
+          {inProgress && <Loader2 size={9} className="animate-spin" />}
+          {video.status === "failed" && <XCircle size={9} />}
+          {STATUS_LABEL[video.status] ?? video.status}
         </span>
+
+        {/* Play button */}
+        {video.videoUrl && (
+          <a
+            href={video.videoUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="absolute inset-0 flex items-center justify-center"
+          >
+            <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center group-hover:bg-white/30 transition-colors">
+              <Play size={14} className="text-white ml-0.5" fill="white" />
+            </div>
+          </a>
+        )}
       </div>
 
       {/* Meta */}
       <div>
-        <p className="text-[13px] font-semibold text-[rgb(var(--foreground))]">
+        <p className="text-[13px] font-semibold text-[rgb(var(--foreground))] truncate">
           {video.title}
         </p>
-        <p className="text-[11px] text-[rgb(var(--muted-foreground))] leading-snug mt-0.5 line-clamp-2">
-          {video.description}
+        <p className="text-[11px] text-[rgb(var(--muted-foreground))] leading-snug mt-0.5">
+          {video.seriesName}
         </p>
-        <button className="text-[11px] text-[rgb(var(--primary))] font-medium mt-1 hover:underline">
-          See more
-        </button>
       </div>
     </div>
   );
@@ -56,10 +71,21 @@ interface RecentVideoPanelProps {
 }
 
 export default function RecentVideoPanel({ gridMode = false }: RecentVideoPanelProps) {
+  const { data } = useVideosList();
+  const recent = (data?.data ?? []).slice(0, 6);
+
+  if (recent.length === 0) {
+    return gridMode ? null : (
+      <div className="p-4 flex flex-col items-center justify-center py-12 gap-2 text-center">
+        <p className="text-[13px] text-[rgb(var(--muted-foreground))]">No videos yet.</p>
+      </div>
+    );
+  }
+
   if (gridMode) {
     return (
       <>
-        {PANEL_VIDEOS.map((video) => (
+        {recent.map((video) => (
           <VideoCard key={video.id} video={video} />
         ))}
       </>
@@ -73,17 +99,14 @@ export default function RecentVideoPanel({ gridMode = false }: RecentVideoPanelP
         <h3 className="text-[15px] font-bold text-[rgb(var(--foreground))]">
           Recent videos
         </h3>
-        <button className="p-1.5 rounded-lg hover:bg-[rgb(var(--muted))] transition-colors">
-          <SlidersHorizontal
-            size={16}
-            className="text-[rgb(var(--muted-foreground))]"
-          />
-        </button>
+        <Link href="/videos" className="text-[11px] text-[rgb(var(--primary))] font-medium hover:underline">
+          See all
+        </Link>
       </div>
 
       {/* Video list */}
       <div className="flex flex-col gap-5">
-        {PANEL_VIDEOS.map((video) => (
+        {recent.map((video) => (
           <VideoCard key={video.id} video={video} />
         ))}
       </div>

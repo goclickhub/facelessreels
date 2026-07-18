@@ -1,11 +1,5 @@
 import type {
   NavItem,
-  StatCard,
-  Notification,
-  VideoItem,
-  SpeechItem,
-  PanelVideo,
-  NicheVideo,
   SeriesItem,
   MusicTrack,
   VoiceOption,
@@ -28,140 +22,49 @@ export const NAVBAR_LINKS: {
   href: string;
 }[] = [];
 
-export const STAT_CARDS: StatCard[] = [
-  {
-    id: "channels",
-    label: "Channels automated",
-    value: "403,787 +",
-    icon: "rss",
-    color: "pink",
-  },
-  {
-    id: "videos",
-    label: "Videos autoposted",
-    value: "1,819,996 +",
-    icon: "play",
-    color: "yellow",
-  },
-  {
-    id: "views",
-    label: "Total Views",
-    value: "40,774 +",
-    icon: "eye",
-    color: "green",
-  },
-];
-
-export const CHART_DATA = [
-  { month: "Jan", views: 8000 },
-  { month: "Feb", views: 10000 },
-  { month: "Mar", views: 18000 },
-  { month: "Apr", views: 22000 },
-  { month: "May", views: 36000 },
-  { month: "Jun", views: 52000 },
-  { month: "Jul", views: 48000 },
-  { month: "Aug", views: 50000 },
-];
-
-export const NOTIFICATIONS: Notification[] = Array.from(
-  { length: 12 },
-  (_, i) => ({
-    id: `notif-${i}`,
-    title: "Video Processing and Optimizing completed",
-    timestamp: "Jun 12th 2025 14:00:00",
-    read: i > 5,
-  }),
-);
-
-export const PANEL_VIDEOS: PanelVideo[] = [
-  {
-    id: "1",
-    title: "Series A",
-    description:
-      "The American government in 1957 had a contrary areement with the UN to...",
-    pinned: true,
-    year: "1957",
-  },
-  {
-    id: "2",
-    title: "Series A",
-    description:
-      "The American government in 1957 had a contrary areement with the UN to...",
-    pinned: true,
-    year: "1957",
-  },
-  {
-    id: "3",
-    title: "Series A",
-    description:
-      "The American government in 1957 had a contrary areement with the UN to...",
-    pinned: true,
-    year: "1957",
-  },
-];
-
-export const NICHE_VIDEOS: NicheVideo[] = [
-  {
-    id: "1",
-    label: "zoe",
-    gradient: "from-amber-800 via-orange-900 to-stone-950",
-  },
-  {
-    id: "2",
-    label: "spent",
-    gradient: "from-slate-600 via-blue-900 to-slate-950",
-  },
-  {
-    id: "3",
-    label: "angel",
-    gradient: "from-orange-900 via-red-900 to-amber-950",
-  },
-];
-
-export const RECENT_VIDEOS: VideoItem[] = Array.from({ length: 5 }, (_, i) => ({
-  id: `vid-${i}`,
-  title: "Sample test video",
-  timeAgo: "2 days ago",
-  thumbnail: "",
-}));
-
 export const SERIES_NICHES: SeriesItem[] = [
   {
     id: "stoic",
     title: "Stoic motivation",
     description: "Viral videos about stoic philosophy and life lessons.",
-    gradient: "from-stone-400 via-amber-600 to-stone-900",
+    icon: "landmark",
   },
   {
     id: "history",
     title: "History",
     description:
       "Viral videos about history spanning from ancient times to the modern day.",
-    gradient: "from-amber-300 via-yellow-600 to-amber-900",
+    icon: "scroll-text",
   },
   {
     id: "gospel",
     title: "Gospel",
     description: "Viral videos about faith",
-    gradient: "from-slate-500 via-slate-700 to-slate-950",
+    icon: "church",
   },
   {
     id: "true-crime",
     title: "True crime",
     description: "Viral videos about true crime stories.",
-    gradient: "from-emerald-600 via-teal-800 to-slate-900",
+    icon: "fingerprint",
   },
   {
     id: "lifestyle",
     title: "Lifestyle",
     description: "Viral videos about everyday life and personal growth.",
-    gradient: "from-pink-400 via-rose-600 to-pink-900",
+    icon: "sparkles",
   },
   {
     id: "science",
     title: "Science facts",
     description: "Viral videos about fascinating science discoveries.",
-    gradient: "from-cyan-500 via-blue-600 to-indigo-900",
+    icon: "atom",
+  },
+  {
+    id: "finance",
+    title: "Finance",
+    description: "Viral videos about money, investing, and financial literacy.",
+    icon: "trending-up",
   },
 ];
 
@@ -170,49 +73,49 @@ export const SERIES_ART_STYLES: SeriesItem[] = [
     id: "selfie",
     title: "Selfie",
     description: "Casual first-person perspective style",
-    gradient: "from-rose-300 via-orange-400 to-amber-600",
+    icon: "camera",
   },
   {
     id: "anime",
     title: "Anime",
     description: "Japanese animation inspired visuals",
-    gradient: "from-green-600 via-teal-700 to-emerald-950",
+    icon: "wand",
   },
   {
     id: "african-legend",
     title: "African Legend",
     description: "Rich cultural and legendary aesthetics",
-    gradient: "from-yellow-500 via-amber-600 to-orange-800",
+    icon: "drama",
   },
   {
     id: "warrior-zone",
     title: "Warrior zone",
     description: "Epic battle-ready cinematic look",
-    gradient: "from-slate-600 via-blue-800 to-slate-950",
+    icon: "swords",
   },
   {
     id: "ancient-fairytale",
     title: "Ancient Fairytale",
     description: "Magical fantasy world aesthetics",
-    gradient: "from-purple-600 via-violet-700 to-fuchsia-950",
+    icon: "castle",
   },
   {
     id: "black-white",
     title: "Black and White",
     description: "Classic monochrome cinematic style",
-    gradient: "from-gray-300 via-gray-600 to-gray-950",
+    icon: "contrast",
   },
   {
     id: "cinematics",
     title: "Cinematics",
     description: "Hollywood-grade cinematic visuals",
-    gradient: "from-cyan-400 via-blue-600 to-indigo-950",
+    icon: "clapperboard",
   },
   {
     id: "art-deco",
     title: "Art Deco",
     description: "Elegant 1920s art deco inspired aesthetics",
-    gradient: "from-amber-300 via-yellow-500 to-orange-700",
+    icon: "gem",
   },
 ];
 
@@ -221,50 +124,50 @@ export const SERIES_EFFECTS: SeriesItem[] = [
     id: "shake",
     title: "Shake Effect",
     description: "Particles of dust and water to make scene captivating",
-    gradient: "from-stone-400 via-amber-600 to-stone-900",
+    icon: "vibrate",
   },
   {
     id: "animated-hook",
     title: "Animated Hook",
     description:
       "Generate a 5 seconds hook to catch viewers attention instantly",
-    gradient: "from-amber-300 via-yellow-500 to-amber-900",
+    icon: "zap",
   },
   {
     id: "gospel-motion",
     title: "Gospel",
     description: "Subjects pop up with eerier motion, suspense is created",
-    gradient: "from-slate-500 via-slate-700 to-slate-950",
+    icon: "ghost",
   },
   {
     id: "fancy-glitch",
     title: "Fancy Glitch",
     description: "Some drops of glitch to make scene epic",
-    gradient: "from-emerald-600 via-teal-800 to-slate-900",
+    icon: "sparkles",
   },
   {
     id: "cosmic",
     title: "Cosmic Effect",
     description: "Cosmic effect leading to blury visual immersion",
-    gradient: "from-purple-800 via-indigo-900 to-slate-950",
+    icon: "orbit",
   },
   {
     id: "line-ray",
     title: "Line-ray Effect",
     description: "Effect from ancient times to the modern day",
-    gradient: "from-yellow-500 via-orange-600 to-red-800",
+    icon: "radar",
   },
   {
     id: "glitch-3",
     title: "Glitch Effect",
     description: "Digital glitch distortion for a futuristic feel",
-    gradient: "from-teal-500 via-cyan-700 to-slate-900",
+    icon: "binary",
   },
   {
     id: "cloud-rotation",
     title: "Cloud rotation",
     description: "Smooth rotating cloud overlay for dreamy transitions",
-    gradient: "from-sky-400 via-blue-500 to-indigo-800",
+    icon: "cloud",
   },
 ];
 
@@ -353,13 +256,3 @@ export const SUBTITLE_STYLES: SubtitleStyle[] = [
   { id: "fancy", label: "Fancy" },
   { id: "elegancy", label: "Elegancy" },
 ];
-
-export const RECENT_SPEECH: SpeechItem[] = Array.from(
-  { length: 3 },
-  (_, i) => ({
-    id: `speech-${i}`,
-    filename: "Experiencing Father's Love - 1.mp3",
-    timeAgo: "2 days ago",
-    duration: "0:00:00",
-  }),
-);

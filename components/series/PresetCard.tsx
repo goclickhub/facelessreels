@@ -1,5 +1,6 @@
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { NavIcon } from "@/lib/icons";
 import type { SeriesItem } from "@/types";
 
 interface PresetCardProps {
@@ -19,11 +20,20 @@ export function PresetCard({ item, selected, onSelect }: PresetCardProps) {
           : "border-[rgb(var(--border))] hover:border-[rgb(var(--primary))]/50 hover:shadow-md",
       )}
     >
-      {/* Image / gradient placeholder */}
+      {/* Illustrated artwork matching the title */}
       <div
-        className={cn("relative w-full bg-linear-to-br", item.gradient)}
+        className={cn(
+          "relative w-full flex items-center justify-center",
+          selected ? "bg-[rgb(var(--primary))]/10" : "bg-[rgb(var(--muted))]",
+        )}
         style={{ aspectRatio: "16/10" }}
       >
+        <NavIcon
+          name={item.icon}
+          size={48}
+          className="transition-transform duration-200 group-hover:scale-110"
+        />
+
         {selected && (
           <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-[rgb(var(--primary))] flex items-center justify-center z-10 shadow-md">
             <Check size={11} className="text-white" strokeWidth={3} />

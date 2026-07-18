@@ -1,20 +1,35 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useRef } from "react";
+import { Suspense, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { ArrowLeft, CheckCircle, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/useToast";
+import { useAuth } from "@/hooks/useAuth";
+import { ApiError } from "@/lib/api";
 import PasswordInput from "@/components/shared/PasswordInput";
 
 export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={null}>
+      <ResetPasswordForm />
+    </Suspense>
+  );
+}
+
+function ResetPasswordForm() {
+  const searchParams = useSearchParams();
+  const email = searchParams.get("email") ?? "";
+  const { resetPasswordMutation } = useAuth();
+  const { success: toastSuccess } = useToast();
+
   const [otp, setOtp] = useState<string[]>(["", "", "", "", "", ""]);
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
+  const loading = resetPasswordMutation.isPending;
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
-  const { success: toastSuccess } = useToast();
 
   const handleChange = (index: number, value: string) => {
     if (value && !/^\d$/.test(value)) return;
@@ -41,19 +56,20 @@ export default function ResetPasswordPage() {
     inputRefs.current[Math.min(pasted.length, 5)]?.focus();
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const code = otp.join("");
     if (code.length !== 6) return setError("Please enter all 6 digits.");
     if (newPassword.length < 8) return setError("Password must be at least 8 characters.");
     if (newPassword !== confirmPassword) return setError("Passwords do not match.");
 
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      await resetPasswordMutation.mutateAsync({ email, code, newPassword });
       setDone(true);
       toastSuccess("Password reset!", "You can now sign in with your new password.");
-    }, 2000);
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Something went wrong. Please try again.");
+    }
   };
 
   const otpInputCls =
@@ -97,7 +113,9 @@ export default function ResetPasswordPage() {
           Reset password
         </h2>
         <p className="text-sm text-[rgb(var(--muted-foreground))]">
-          Enter the 6-digit code from your email and choose a new password.
+          Enter the 6-digit code sent to{" "}
+          <span className="font-medium text-[rgb(var(--foreground))]">{email || "your email"}</span> and
+          choose a new password.
         </p>
       </div>
 

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Bell, Menu, Search } from "lucide-react";
+import { Bell, Menu } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ProfileDropdown } from "@/components/layout/ProfileDropdown";
 import AppLogo from "@/components/ui/AppLogo";
@@ -35,20 +35,8 @@ export default function TopNavbar({
         </Link>
       </div>
 
-      {/* Search bar */}
-      <div className="flex-1 flex justify-center">
-        <div className="relative w-full max-w-[600px]">
-          <Search
-            size={15}
-            className="absolute left-4 top-1/2 -translate-y-1/2 text-[rgb(var(--muted-foreground))] pointer-events-none"
-          />
-          <input
-            type="text"
-            placeholder="Search"
-            className="w-full h-10 pl-10 pr-4 rounded-full bg-[rgb(var(--muted))] border border-[rgb(var(--border))] text-[13px] text-[rgb(var(--foreground))] placeholder:text-[rgb(var(--muted-foreground))] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--primary))]/30 transition"
-          />
-        </div>
-      </div>
+      {/* Spacer where search used to be */}
+      <div className="flex-1" />
 
       {/* Right: bell + avatar */}
       <div className="flex items-center gap-2.5 shrink-0">

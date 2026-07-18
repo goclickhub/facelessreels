@@ -1,75 +1,35 @@
 "use client";
 
 import { useState } from "react";
-import { Sparkles } from "lucide-react";
+import { Sparkles, Loader2 } from "lucide-react";
 import BillingToggle, { type Billing } from "@/components/upgrade/BillingToggle";
 import PlanCard from "@/components/upgrade/PlanCard";
-import type { Plan } from "@/types";
+import { usePlans } from "@/hooks/useBilling";
+import { useAuth } from "@/hooks/useAuth";
 
-const PLANS: Plan[] = [
-  {
-    id: "free",
-    name: "Free",
-    monthlyPrice: 0,
-    annualPrice: 0,
+const PLAN_PRESENTATION: Record<string, { description: string; highlighted: boolean; badge?: string; cta: string }> = {
+  free: {
     description: "Get started with automated faceless videos.",
     highlighted: false,
-    features: [
-      "10 videos / month",
-      "3 niche presets",
-      "1 platform connection",
-      "720p export quality",
-      "Watermarked videos",
-      "Community support",
-    ],
     cta: "Current plan",
-    ctaHref: "#",
   },
-  {
-    id: "pro",
-    name: "Pro",
-    monthlyPrice: 29,
-    annualPrice: 19,
+  pro: {
     description: "For creators who want daily automated content.",
     highlighted: true,
     badge: "Most popular",
-    features: [
-      "Unlimited videos",
-      "All niche presets",
-      "3 platform connections",
-      "1080p export quality",
-      "No watermark",
-      "Custom voice selection",
-      "Priority processing",
-      "Email support",
-    ],
     cta: "Upgrade to Pro",
-    ctaHref: "#",
   },
-  {
-    id: "business",
-    name: "Business",
-    monthlyPrice: 79,
-    annualPrice: 55,
+  business: {
     description: "For agencies and power creators at scale.",
     highlighted: false,
-    features: [
-      "Everything in Pro",
-      "Unlimited platforms",
-      "4K export quality",
-      "10 team seats",
-      "API access",
-      "Custom branding",
-      "Dedicated account manager",
-      "SLA-backed uptime",
-    ],
     cta: "Upgrade to Business",
-    ctaHref: "#",
   },
-];
+};
 
 export default function UpgradePage() {
   const [billing, setBilling] = useState<Billing>("monthly");
+  const { data: plans, isLoading } = usePlans();
+  const { user } = useAuth();
 
   return (
     <div className="px-5 md:px-6 py-5 space-y-6">
@@ -96,11 +56,32 @@ export default function UpgradePage() {
         <BillingToggle billing={billing} onChange={setBilling} />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-5xl mx-auto">
-        {PLANS.map((plan) => (
-          <PlanCard key={plan.id} plan={plan} billing={billing} />
-        ))}
-      </div>
+      {isLoading ? (
+        <div className="flex items-center justify-center py-16">
+          <Loader2 size={24} className="animate-spin text-[rgb(var(--muted-foreground))]" />
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-5xl mx-auto">
+          {(plans ?? []).map((plan) => {
+            const presentation = PLAN_PRESENTATION[plan.id] ?? {
+              description: "",
+              highlighted: false,
+              cta: `Upgrade to ${plan.name}`,
+            };
+            const isCurrent = user?.plan === plan.id;
+            return (
+              <PlanCard
+                key={plan.id}
+                plan={plan}
+                billing={billing}
+                {...presentation}
+                cta={isCurrent ? "Current plan" : presentation.cta}
+                disabled={isCurrent}
+              />
+            );
+          })}
+        </div>
+      )}
 
       <p className="text-center text-[11px] text-[rgb(var(--muted-foreground))] pb-4">
         All plans include a 7-day free trial. No credit card required to start.

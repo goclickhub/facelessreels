@@ -1,58 +1,42 @@
-import { cn } from "@/lib/utils";
-import { NavIcon } from "@/lib/icons";
-import { STAT_CARDS } from "@/lib/data";
-import type { StatCard } from "@/types";
+"use client";
 
-const colorMap: Record<
-  StatCard["color"],
-  { bg: string; label: string; value: string }
-> = {
-  pink: {
-    bg: "bg-[rgb(var(--stat-pink))]",
-    label: "text-neutral-900 dark:text-rose-300",
-    value: "text-neutral-900 dark:text-rose-100",
-  },
-  yellow: {
-    bg: "bg-[rgb(var(--stat-yellow))]",
-    label: "text-neutral-900 dark:text-amber-300",
-    value: "text-neutral-900 dark:text-amber-100",
-  },
-  green: {
-    bg: "bg-[rgb(var(--stat-green))]",
-    label: "text-neutral-900 dark:text-green-300",
-    value: "text-neutral-900 dark:text-green-100",
-  },
-};
+import { Layers, Video, CheckCircle2 } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { useSeriesList } from "@/hooks/useSeries";
+import { useVideosList } from "@/hooks/useVideos";
 
 export default function StatCards() {
+  const { data: series } = useSeriesList();
+  const { data: videosData } = useVideosList();
+  const videos = videosData?.data ?? [];
+  const readyCount = videos.filter((v) => v.status === "ready" || v.status === "published").length;
+
+  const cards = [
+    { id: "series", label: "Total Series", value: series?.length ?? 0, icon: Layers, bg: "bg-[rgb(var(--stat-pink))]" },
+    { id: "videos", label: "Total Videos", value: videos.length, icon: Video, bg: "bg-[rgb(var(--stat-yellow))]" },
+    { id: "ready", label: "Videos Ready", value: readyCount, icon: CheckCircle2, bg: "bg-[rgb(var(--stat-green))]" },
+  ];
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-      {STAT_CARDS.map((card) => {
-        const colors = colorMap[card.color];
-        return (
-          <div
-            key={card.id}
-            className={cn(
-              "rounded-2xl p-5 flex items-center justify-between shadow-sm",
-              colors.bg,
-            )}
-          >
-            <div>
-              <p
-                className={`text-xs font-medium mb-2 text-neutral-900 dark:text-amber-300`}
-              >
-                {card.label}
-              </p>
-              <p className={`text-2xl font-black leading-none ${colors.value}`}>
-                {card.value}
-              </p>
-            </div>
-            <div className="w-12 h-12 rounded-full bg-neutral-900 dark:bg-neutral-700 flex items-center justify-center shrink-0">
-              <NavIcon name={card.icon} size={20} className="text-white" />
-            </div>
+      {cards.map((card) => (
+        <div
+          key={card.id}
+          className={cn("rounded-2xl p-5 flex items-center justify-between shadow-sm", card.bg)}
+        >
+          <div>
+            <p className="text-xs font-medium mb-2 text-neutral-900 dark:text-amber-300">
+              {card.label}
+            </p>
+            <p className="text-2xl font-black leading-none text-neutral-900 dark:text-amber-100">
+              {card.value}
+            </p>
           </div>
-        );
-      })}
+          <div className="w-12 h-12 rounded-full bg-neutral-900 dark:bg-neutral-700 flex items-center justify-center shrink-0">
+            <card.icon size={20} className="text-white" />
+          </div>
+        </div>
+      ))}
     </div>
   );
 }

@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import { ProgressBar } from "@/components/series/ProgressBar";
+import { SeriesDraftProvider } from "@/providers/SeriesDraftProvider";
 
 const STEP_MAP: Record<string, number> = {
   "/series": 1,
@@ -16,9 +17,11 @@ export default function SeriesLayout({ children }: { children: React.ReactNode }
   const step = STEP_MAP[pathname] ?? 1;
 
   return (
-    <div className="flex flex-col min-h-full">
-      <ProgressBar step={step} total={TOTAL_STEPS} />
-      {children}
-    </div>
+    <SeriesDraftProvider>
+      <div className="flex flex-col min-h-full">
+        <ProgressBar step={step} total={TOTAL_STEPS} />
+        {children}
+      </div>
+    </SeriesDraftProvider>
   );
 }

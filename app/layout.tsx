@@ -2,11 +2,12 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { ThemeProvider } from "@/providers/ThemeProvider";
 import { ToastProvider } from "@/providers/ToastProvider";
+import { QueryProvider } from "@/providers/QueryProvider";
 import { Poppins } from "next/font/google";
 
 export const metadata: Metadata = {
-  title: "VideoDual Dashboard",
-  description: "Video platform management dashboard",
+  title: "FacelessReels",
+  description: "Create and auto-post faceless short-form videos across TikTok, Instagram, and YouTube.",
 };
 
 const poppins = Poppins({
@@ -30,7 +31,7 @@ export default function RootLayout({
           disableTransitionOnChange={false}
         >
           <ToastProvider>
-            {children}
+            <QueryProvider>{children}</QueryProvider>
           </ToastProvider>
         </ThemeProvider>
       </body>

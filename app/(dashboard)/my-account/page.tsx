@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   User,
   Camera,
@@ -9,20 +9,95 @@ import {
   Eye,
   EyeOff,
   ShieldCheck,
+  Loader2,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/useToast";
+import { ApiError } from "@/lib/api";
+
+const AVATAR_MAX_BYTES = 5 * 1024 * 1024;
+const AVATAR_ACCEPTED_TYPES = ["image/png", "image/jpeg", "image/webp"];
 
 export default function MyAccountPage() {
   const fileRef = useRef<HTMLInputElement>(null);
-  const [avatar, setAvatar] = useState<string | null>(null);
-  const [name, setName] = useState("Administrator Hello");
-  const [email, setEmail] = useState("info@videocafe.com");
-  const [currentPw, setCurrentPw] = useState("•••••••");
+  const { user, changePasswordMutation, updateProfileMutation, uploadAvatarMutation } = useAuth();
+  const { success: toastSuccess, error: toastError } = useToast();
+
+  const [currentPw, setCurrentPw] = useState("");
   const [newPw, setNewPw] = useState("");
   const [confirmPw, setConfirmPw] = useState("");
   const [showCurrent, setShowCurrent] = useState(false);
   const [showNew, setShowNew] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+
+  const [name, setName] = useState(user?.name ?? "");
+  useEffect(() => {
+    if (user?.name !== undefined) setName(user.name);
+  }, [user?.name]);
+  const nameChanged = name.trim().length > 0 && name.trim() !== user?.name;
+
+  const handlePhotoClick = () => fileRef.current?.click();
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+
+    if (!AVATAR_ACCEPTED_TYPES.includes(file.type)) {
+      toastError("Unsupported file", "Please choose a PNG, JPEG, or WEBP image.");
+      return;
+    }
+    if (file.size > AVATAR_MAX_BYTES) {
+      toastError("File too large", "Avatar must be under 5MB.");
+      return;
+    }
+
+    try {
+      await uploadAvatarMutation.mutateAsync(file);
+      toastSuccess("Photo updated");
+    } catch (err) {
+      const message = err instanceof ApiError ? err.message : "Something went wrong. Please try again.";
+      toastError("Couldn't upload photo", message);
+    }
+  };
+
+  const handleSaveName = async () => {
+    if (!nameChanged || updateProfileMutation.isPending) return;
+    try {
+      await updateProfileMutation.mutateAsync({ name: name.trim() });
+      toastSuccess("Name updated");
+    } catch (err) {
+      const message = err instanceof ApiError ? err.message : "Something went wrong. Please try again.";
+      toastError("Couldn't update name", message);
+    }
+  };
+
+  const handleUpdate = async () => {
+    if (!currentPw || !newPw) {
+      toastError("Missing fields", "Please fill in your current and new password.");
+      return;
+    }
+    if (newPw.length < 8) {
+      toastError("Password too short", "New password must be at least 8 characters.");
+      return;
+    }
+    if (newPw !== confirmPw) {
+      toastError("Passwords don't match", "Please make sure both new passwords match.");
+      return;
+    }
+
+    try {
+      await changePasswordMutation.mutateAsync({ currentPassword: currentPw, newPassword: newPw });
+      toastSuccess("Password changed", "Your password has been updated.");
+      setCurrentPw("");
+      setNewPw("");
+      setConfirmPw("");
+    } catch (err) {
+      const message = err instanceof ApiError ? err.message : "Something went wrong. Please try again.";
+      toastError("Couldn't change password", message);
+    }
+  };
 
   return (
     <div className="px-4 md:px-6 py-5 space-y-5">
@@ -48,50 +123,52 @@ export default function MyAccountPage() {
                 border-2 border-[rgb(var(--primary))]/40
                 flex items-center justify-center overflow-hidden"
               >
-                {avatar ? (
+                {user?.avatarUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
                   <img
-                    src={avatar}
-                    alt="avatar"
+                    src={user.avatarUrl}
+                    alt={user.name}
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <User
-                    size={28}
-                    className="text-[rgb(var(--muted-foreground))]"
-                  />
+                  <User size={28} className="text-[rgb(var(--muted-foreground))]" />
+                )}
+                {uploadAvatarMutation.isPending && (
+                  <div className="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center">
+                    <Loader2 size={18} className="text-white animate-spin" />
+                  </div>
                 )}
               </div>
               <button
-                onClick={() => fileRef.current?.click()}
+                onClick={handlePhotoClick}
+                disabled={uploadAvatarMutation.isPending}
                 className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full
                   bg-[rgb(var(--primary))] text-white flex items-center justify-center
-                  cursor-pointer hover:opacity-90 transition-opacity shadow"
+                  cursor-pointer hover:opacity-90 transition-opacity shadow disabled:opacity-60"
               >
                 <Camera size={11} />
               </button>
               <input
                 ref={fileRef}
                 type="file"
-                accept="image/*"
+                accept="image/png,image/jpeg,image/webp"
                 className="hidden"
-                onChange={(e) => {
-                  const f = e.target.files?.[0];
-                  if (f) setAvatar(URL.createObjectURL(f));
-                }}
+                onChange={handleFileChange}
               />
             </div>
             <div>
               <p className="text-[13px] font-semibold text-[rgb(var(--foreground))]">
-                {name}
+                {user?.name ?? "—"}
               </p>
               <p className="text-[11px] text-[rgb(var(--muted-foreground))]">
-                {email}
+                {user?.email ?? "—"}
               </p>
               <button
-                onClick={() => fileRef.current?.click()}
+                onClick={handlePhotoClick}
+                disabled={uploadAvatarMutation.isPending}
                 className="mt-1.5 flex items-center gap-1.5 h-7 px-3 rounded-md
                   bg-[rgb(var(--primary))] text-white text-[10px] font-semibold
-                  cursor-pointer hover:opacity-90 transition-opacity"
+                  cursor-pointer hover:opacity-90 transition-opacity disabled:opacity-60"
               >
                 <Camera size={11} /> Update Photo
               </button>
@@ -109,11 +186,25 @@ export default function MyAccountPage() {
                 />{" "}
                 Name
               </label>
-              <Input
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="h-9 text-[12px] bg-[rgb(var(--muted))] border-[rgb(var(--border))]"
-              />
+              <div className="flex items-center gap-2">
+                <Input
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="h-9 text-[12px] bg-[rgb(var(--card))] border-[rgb(var(--border))]"
+                />
+                {nameChanged && (
+                  <button
+                    onClick={handleSaveName}
+                    disabled={updateProfileMutation.isPending}
+                    className="shrink-0 flex items-center gap-1.5 h-9 px-3 rounded-md
+                      bg-[rgb(var(--primary))] text-white text-[11px] font-semibold
+                      cursor-pointer hover:opacity-90 transition-opacity disabled:opacity-60"
+                  >
+                    {updateProfileMutation.isPending && <Loader2 size={12} className="animate-spin" />}
+                    Save
+                  </button>
+                )}
+              </div>
             </div>
 
             {/* Email */}
@@ -126,11 +217,14 @@ export default function MyAccountPage() {
                 Email
               </label>
               <Input
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="h-9 text-[12px] bg-[rgb(var(--muted))] border-[rgb(var(--border))]"
+                value={user?.email ?? ""}
+                disabled
+                className="h-9 text-[12px] bg-[rgb(var(--muted))] border-[rgb(var(--border))] opacity-70"
               />
             </div>
+            <p className="text-[10px] text-[rgb(var(--muted-foreground))] -mt-1 sm:pl-[128px]">
+              Email is your unique account identifier and can&apos;t be changed.
+            </p>
 
             {/* Divider */}
             <div className="flex items-center gap-3 py-1">
@@ -155,6 +249,7 @@ export default function MyAccountPage() {
                   type={showCurrent ? "text" : "password"}
                   value={currentPw}
                   onChange={(e) => setCurrentPw(e.target.value)}
+                  placeholder="Enter current password"
                   className="h-9 text-[12px] pr-9 bg-[rgb(var(--muted))] border-[rgb(var(--border))]"
                 />
                 <button
@@ -227,10 +322,13 @@ export default function MyAccountPage() {
           {/* Update button */}
           <div className="flex justify-end pt-2">
             <button
-              className="h-9 px-8 rounded-md bg-[rgb(var(--primary))]
+              onClick={handleUpdate}
+              disabled={changePasswordMutation.isPending}
+              className="flex items-center gap-2 h-9 px-8 rounded-md bg-[rgb(var(--primary))]
               text-white text-[12px] font-bold
-              hover:opacity-90 transition-opacity cursor-pointer"
+              hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-60"
             >
+              {changePasswordMutation.isPending && <Loader2 size={13} className="animate-spin" />}
               Update
             </button>
           </div>

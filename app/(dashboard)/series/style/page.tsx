@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Music2, Link2 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -10,6 +9,8 @@ import { CustomMusicInput } from "@/components/series/CustomMusicInput";
 import { InlineSelect, type SelectOption } from "@/components/series/InlineSelect";
 import { SubtitleGrid } from "@/components/series/SubtitleGrid";
 import { FooterNav } from "@/components/series/FooterNav";
+import { useSeriesDraft } from "@/providers/SeriesDraftProvider";
+import { useToast } from "@/hooks/useToast";
 import {
   MUSIC_TRACKS,
   VOICE_OPTIONS,
@@ -44,13 +45,21 @@ function SubSectionHeader({ title, subtitle }: { title: string; subtitle: string
 
 export default function SeriesStylePage() {
   const router = useRouter();
+  const { draft, update } = useSeriesDraft();
+  const { error: toastError } = useToast();
 
-  const [musicTab, setMusicTab] = useState<TabValue>("preset");
-  const [selectedTrack, setSelectedTrack] = useState(MUSIC_TRACKS[0].id);
-  const [musicUrl, setMusicUrl] = useState("");
-  const [selectedVoice, setSelectedVoice] = useState(VOICE_OPTIONS[0].id);
-  const [selectedLanguage, setSelectedLanguage] = useState(LANGUAGES[0].id);
-  const [selectedSubtitle, setSelectedSubtitle] = useState<string | null>(null);
+  const musicTab = draft.musicTab;
+  const setMusicTab = (tab: TabValue) => update({ musicTab: tab });
+  const selectedTrack = draft.musicTrackId || MUSIC_TRACKS[0].id;
+  const setSelectedTrack = (id: string) => update({ musicTrackId: id });
+  const musicUrl = draft.musicUrl;
+  const setMusicUrl = (url: string) => update({ musicUrl: url });
+  const selectedVoice = draft.voice;
+  const setSelectedVoice = (id: string) => update({ voice: id });
+  const selectedLanguage = draft.language;
+  const setSelectedLanguage = (id: string) => update({ language: id });
+  const selectedSubtitle = draft.subtitleStyle;
+  const setSelectedSubtitle = (id: string) => update({ subtitleStyle: id });
 
   const voiceOptions: SelectOption[] = VOICE_OPTIONS.map((v) => ({
     id: v.id,
@@ -135,7 +144,9 @@ export default function SeriesStylePage() {
       <FooterNav
         step={2}
         total={3}
-        onBack={() => router.push("/series")}
+        onBack={() =>
+          router.push(draft.editingSeriesId ? `/series?edit=${draft.editingSeriesId}` : "/series")
+        }
         onContinue={() => router.push("/series/effects")}
       />
     </div>

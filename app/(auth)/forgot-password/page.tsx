@@ -2,67 +2,33 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Mail, ArrowLeft, CheckCircle, Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Mail, ArrowLeft, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/useToast";
+import { useAuth } from "@/hooks/useAuth";
+import { ApiError } from "@/lib/api";
 
 const inputCls =
   "w-full rounded-lg border border-[rgb(var(--border))] bg-[rgb(var(--input-bg))] text-[rgb(var(--foreground))] placeholder:text-[rgb(var(--muted-foreground))] text-sm px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-[rgb(var(--primary))]/30 transition";
 
 export default function ForgotPasswordPage() {
-  const [loading, setLoading] = useState(false);
-  const [sent, setSent] = useState(false);
-  const { success: toastSuccess } = useToast();
+  const [email, setEmail] = useState("");
+  const { forgotPasswordMutation } = useAuth();
+  const { success: toastSuccess, error: toastError } = useToast();
+  const router = useRouter();
+  const loading = forgotPasswordMutation.isPending;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      setSent(true);
-      toastSuccess("Reset link sent!", "Check your inbox — it expires in 15 minutes.");
-    }, 2000);
+    try {
+      await forgotPasswordMutation.mutateAsync({ email });
+      toastSuccess("Code sent!", "Check your inbox for a 6-digit reset code.");
+      router.push(`/reset-password?email=${encodeURIComponent(email)}`);
+    } catch (err) {
+      const message = err instanceof ApiError ? err.message : "Something went wrong. Please try again.";
+      toastError("Couldn't send code", message);
+    }
   };
-
-  if (sent) {
-    return (
-      <div className="space-y-6 text-center">
-        <div className="flex justify-center">
-          <div
-            className="flex h-16 w-16 items-center justify-center rounded-full"
-            style={{ background: "rgb(var(--primary) / 0.12)" }}
-          >
-            <CheckCircle className="h-8 w-8" style={{ color: "rgb(var(--primary))" }} />
-          </div>
-        </div>
-
-        <div className="space-y-2">
-          <h2 className="text-2xl font-bold text-[rgb(var(--foreground))]">Check your email</h2>
-          <p className="text-sm text-[rgb(var(--muted-foreground))]">
-            We sent a password reset link to your email. It expires in 15 minutes.
-          </p>
-        </div>
-
-        <div className="rounded-lg border border-[rgb(var(--border))] bg-[rgb(var(--card))] p-4 text-left text-sm">
-          <p className="text-[rgb(var(--muted-foreground))]">
-            Didn&apos;t receive it? Check your spam folder, or
-          </p>
-          <button
-            onClick={() => setSent(false)}
-            className="mt-1 text-[rgb(var(--primary))] hover:underline"
-          >
-            try a different email address
-          </button>
-        </div>
-
-        <Link
-          href="/sign-in"
-          className="flex w-full items-center justify-center gap-2 rounded-lg border border-[rgb(var(--border))] bg-[rgb(var(--card))] py-2.5 text-sm font-medium text-[rgb(var(--foreground))] transition hover:bg-[rgb(var(--muted))]"
-        >
-          <ArrowLeft className="h-4 w-4" /> Back to sign in
-        </Link>
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-6">
@@ -78,7 +44,7 @@ export default function ForgotPasswordPage() {
           Forgot password?
         </h2>
         <p className="text-sm text-[rgb(var(--muted-foreground))]">
-          Enter your email and we&apos;ll send you a reset link.
+          Enter your email and we&apos;ll send you a reset code.
         </p>
       </div>
 
@@ -93,6 +59,8 @@ export default function ForgotPasswordPage() {
               id="email"
               type="email"
               placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               required
               className={`${inputCls} pl-9`}
             />
@@ -105,7 +73,7 @@ export default function ForgotPasswordPage() {
           className="flex w-full items-center justify-center gap-2 rounded-lg bg-[rgb(var(--primary))] py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-60"
         >
           {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-          {loading ? "Sending link..." : "Send reset link"}
+          {loading ? "Sending code..." : "Send reset code"}
         </button>
       </form>
 

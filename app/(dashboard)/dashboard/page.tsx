@@ -1,7 +1,7 @@
 import StatCards from "@/components/dashboard/StatCards";
 import ChartCard from "@/components/dashboard/ChartCardClient";
-import CreateVideoSection from "@/components/dashboard/CreateVideoSection";
 import RecentVideoPanel from "@/components/dashboard/RecentVideoPanel";
+import YourSeriesSection from "@/components/dashboard/YourSeriesSection";
 
 export default function DashboardPage() {
   return (
@@ -15,7 +15,7 @@ export default function DashboardPage() {
 
       <StatCards />
       <ChartCard />
-      <CreateVideoSection />
+      <YourSeriesSection />
 
       {/* Recent videos — grid visible on mobile; hidden on lg+ (shown in right panel) */}
       <div className="lg:hidden">

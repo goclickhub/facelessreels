@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import {
   AreaChart,
   Area,
@@ -10,19 +9,27 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import { ChevronDown } from "lucide-react";
-import { CHART_DATA } from "@/lib/data";
+import { useVideosList } from "@/hooks/useVideos";
 
-const PERIODS = ["This month", "Last month", "This year"];
+function lastSevenDays(videos: { createdAt: string }[]) {
+  const days: { key: string; label: string; date: Date }[] = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    d.setDate(d.getDate() - i);
+    days.push({ key: d.toDateString(), label: d.toLocaleDateString(undefined, { weekday: "short" }), date: d });
+  }
 
-function formatY(v: number) {
-  if (v === 0) return "0";
-  return `${v / 1000}k`;
+  return days.map(({ key, label }) => ({
+    day: label,
+    videos: videos.filter((v) => new Date(v.createdAt).toDateString() === key).length,
+  }));
 }
 
 export default function ChartCard() {
-  const [period, setPeriod] = useState("This month");
-  const [periodOpen, setPeriodOpen] = useState(false);
+  const { data } = useVideosList();
+  const chartData = lastSevenDays(data?.data ?? []);
+  const maxVideos = Math.max(1, ...chartData.map((d) => d.videos));
 
   return (
     <div className="bg-[rgb(var(--card))] border border-[rgb(var(--border))] rounded-2xl p-5 shadow-sm">
@@ -30,41 +37,11 @@ export default function ChartCard() {
       <div className="flex items-start justify-between mb-5">
         <div>
           <h3 className="text-[15px] font-bold text-[rgb(var(--foreground))]">
-            Top video performance
+            Videos generated
           </h3>
           <p className="text-[12px] text-[rgb(var(--muted-foreground))] mt-0.5">
-            Monthly Overview
+            Last 7 days
           </p>
-        </div>
-
-        {/* Period dropdown */}
-        <div className="relative">
-          <button
-            onClick={() => setPeriodOpen((p) => !p)}
-            className="flex items-center gap-1.5 h-8 px-3 rounded-lg border border-[rgb(var(--border))] bg-[rgb(var(--card))] text-[12px] font-medium text-[rgb(var(--foreground))] hover:bg-[rgb(var(--muted))] transition-colors"
-          >
-            {period}
-            <ChevronDown
-              size={13}
-              className={`transition-transform duration-200 ${periodOpen ? "rotate-180" : ""}`}
-            />
-          </button>
-          {periodOpen && (
-            <div className="absolute right-0 top-9 z-10 w-36 bg-[rgb(var(--popover))] border border-[rgb(var(--border))] rounded-xl shadow-xl py-1 notif-panel-animate">
-              {PERIODS.map((p) => (
-                <button
-                  key={p}
-                  onClick={() => {
-                    setPeriod(p);
-                    setPeriodOpen(false);
-                  }}
-                  className="w-full text-left px-3 py-2 text-[12px] text-[rgb(var(--foreground))] hover:bg-[rgb(var(--muted))] transition-colors"
-                >
-                  {p}
-                </button>
-              ))}
-            </div>
-          )}
         </div>
       </div>
 
@@ -72,7 +49,7 @@ export default function ChartCard() {
       <div style={{ width: "100%", minHeight: 260 }}>
         <ResponsiveContainer width="100%" height={260}>
           <AreaChart
-            data={CHART_DATA}
+            data={chartData}
             margin={{ top: 10, right: 8, left: -10, bottom: 0 }}
           >
             <defs>
@@ -87,7 +64,7 @@ export default function ChartCard() {
               vertical={false}
             />
             <XAxis
-              dataKey="month"
+              dataKey="day"
               axisLine={false}
               tickLine={false}
               tick={{
@@ -100,9 +77,8 @@ export default function ChartCard() {
               axisLine={false}
               tickLine={false}
               tick={{ fill: "rgb(var(--muted-foreground))", fontSize: 11 }}
-              tickFormatter={formatY}
-              ticks={[0, 5000, 10000, 20000, 30000, 50000]}
-              domain={[0, 56000]}
+              allowDecimals={false}
+              domain={[0, maxVideos]}
             />
             <Tooltip
               contentStyle={{
@@ -112,14 +88,11 @@ export default function ChartCard() {
                 fontSize: 12,
                 boxShadow: "0 4px 16px rgba(0,0,0,.1)",
               }}
-              formatter={(val: number) => [
-                val >= 1000 ? `${(val / 1000).toFixed(0)}k` : val,
-                "Views",
-              ]}
+              formatter={(val: number) => [val, "Videos"]}
             />
             <Area
               type="monotone"
-              dataKey="views"
+              dataKey="videos"
               stroke="#d946ef"
               strokeWidth={2.5}
               fill="url(#chartGrad)"

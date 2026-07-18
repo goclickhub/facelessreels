@@ -1,16 +1,29 @@
+"use client";
+
 import { Check, Zap } from "lucide-react";
-import Link from "next/link";
-import type { Plan } from "@/types";
+import { useToast } from "@/hooks/useToast";
+import type { BillingPlan } from "@/hooks/useBilling";
 import type { Billing } from "./BillingToggle";
 
 interface PlanCardProps {
-  plan: Plan;
+  plan: BillingPlan;
   billing: Billing;
+  description: string;
+  highlighted: boolean;
+  badge?: string;
+  cta: string;
+  disabled?: boolean;
 }
 
-export default function PlanCard({ plan, billing }: PlanCardProps) {
+export default function PlanCard({ plan, billing, description, highlighted, badge, cta, disabled }: PlanCardProps) {
+  const { success: toastSuccess } = useToast();
   const price = billing === "monthly" ? plan.monthlyPrice : plan.annualPrice;
-  const hl = plan.highlighted;
+  const hl = highlighted;
+
+  const handleClick = () => {
+    if (disabled) return;
+    toastSuccess("Coming soon", "Paid plans aren't available to purchase yet.");
+  };
 
   return (
     <div
@@ -18,11 +31,11 @@ export default function PlanCard({ plan, billing }: PlanCardProps) {
         hl ? "bg-[rgb(var(--primary))] text-white shadow-xl" : "bg-[rgb(var(--card))] border border-[rgb(var(--border))]"
       }`}
     >
-      {plan.badge && (
+      {badge && (
         <div className="absolute -top-3 left-1/2 -translate-x-1/2">
           <span className="inline-flex items-center gap-1 rounded-full bg-white px-3 py-1 text-[10px] font-bold text-[rgb(var(--primary))] shadow">
             <Zap size={10} />
-            {plan.badge}
+            {badge}
           </span>
         </div>
       )}
@@ -42,7 +55,7 @@ export default function PlanCard({ plan, billing }: PlanCardProps) {
           )}
         </div>
         <p className={`text-[11px] leading-relaxed ${hl ? "text-white/70" : "text-[rgb(var(--muted-foreground))]"}`}>
-          {plan.description}
+          {description}
         </p>
       </div>
 
@@ -59,18 +72,19 @@ export default function PlanCard({ plan, billing }: PlanCardProps) {
         ))}
       </ul>
 
-      <Link
-        href={plan.ctaHref}
+      <button
+        onClick={handleClick}
+        disabled={disabled}
         className={`flex w-full items-center justify-center rounded-xl py-2.5 text-[13px] font-bold transition-opacity hover:opacity-90 ${
           hl
             ? "bg-white text-[rgb(var(--primary))]"
-            : plan.id === "free"
+            : disabled
             ? "border border-[rgb(var(--border))] text-[rgb(var(--muted-foreground))] pointer-events-none opacity-60"
             : "bg-[rgb(var(--primary))] text-white"
         }`}
       >
-        {plan.cta}
-      </Link>
+        {cta}
+      </button>
     </div>
   );
 }
