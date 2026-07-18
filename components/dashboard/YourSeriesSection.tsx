@@ -9,7 +9,6 @@ import {
   useToggleSeries,
   useDeleteSeries,
 } from "@/hooks/useSeries";
-import { useSeriesDraft } from "@/providers/SeriesDraftProvider";
 import { useClickOutside } from "@/hooks/useClickOutside";
 import { useToast } from "@/hooks/useToast";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
@@ -18,7 +17,6 @@ import type { Series } from "@/hooks/useSeries";
 
 function SeriesRow({ series }: { series: Series }) {
   const router = useRouter();
-  const { reset } = useSeriesDraft();
   const toggleSeries = useToggleSeries();
   const deleteSeries = useDeleteSeries();
   const { success: toastSuccess, error: toastError } = useToast();
@@ -30,7 +28,6 @@ function SeriesRow({ series }: { series: Series }) {
 
   const handleEdit = () => {
     setMenuOpen(false);
-    reset();
     router.push(`/series?edit=${series.id}`);
   };
 
@@ -132,7 +129,6 @@ function SeriesRow({ series }: { series: Series }) {
 
 export default function YourSeriesSection() {
   const { data: series, isLoading } = useSeriesList();
-  const { reset } = useSeriesDraft();
 
   return (
     <section className="space-y-4">
@@ -140,7 +136,6 @@ export default function YourSeriesSection() {
         <h3 className="text-[15px] font-bold text-[rgb(var(--foreground))]">Your Series</h3>
         <Link
           href="/series"
-          onClick={reset}
           className="flex items-center gap-1.5 rounded-lg bg-[rgb(var(--primary))] px-3 py-1.5 text-[12px] font-semibold text-white hover:opacity-90 transition-opacity"
         >
           <Plus size={14} /> New Series
