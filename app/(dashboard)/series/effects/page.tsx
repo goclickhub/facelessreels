@@ -5,7 +5,7 @@ import { Clock, PlusCircle } from "lucide-react";
 import { FooterNav } from "@/components/series/FooterNav";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useSeriesDraft } from "@/providers/SeriesDraftProvider";
-import { useCreateSeries, useUpdateSeries } from "@/hooks/useSeries";
+import { useCreateSeries, useUpdateSeries, useGenerateVideo } from "@/hooks/useSeries";
 import { useToast } from "@/hooks/useToast";
 import { ApiError } from "@/lib/api";
 
@@ -69,8 +69,9 @@ export default function SeriesEffectsPage() {
   const { error: toastError, success: toastSuccess } = useToast();
   const createSeries = useCreateSeries();
   const updateSeries = useUpdateSeries();
+  const generateVideo = useGenerateVideo();
   const isEditing = Boolean(draft.editingSeriesId);
-  const isSaving = createSeries.isPending || updateSeries.isPending;
+  const isSaving = createSeries.isPending || updateSeries.isPending || generateVideo.isPending;
 
   const seriesName = draft.name;
   const setSeriesName = (name: string) => update({ name });
@@ -122,19 +123,37 @@ export default function SeriesEffectsPage() {
       scheduleTime: draft.scheduleTime,
     };
 
-    try {
-      if (draft.editingSeriesId) {
+    if (draft.editingSeriesId) {
+      try {
         await updateSeries.mutateAsync({ id: draft.editingSeriesId, input });
         toastSuccess("Series updated", "Your changes have been saved.");
-      } else {
-        await createSeries.mutateAsync(input);
+        reset();
+        router.push("/dashboard");
+      } catch (err) {
+        const message = err instanceof ApiError ? err.message : "Something went wrong. Please try again.";
+        toastError("Couldn't save series", message);
       }
-      reset();
-      router.push("/dashboard");
+      return;
+    }
+
+    let created;
+    try {
+      created = await createSeries.mutateAsync(input);
     } catch (err) {
       const message = err instanceof ApiError ? err.message : "Something went wrong. Please try again.";
-      toastError(isEditing ? "Couldn't save series" : "Couldn't create series", message);
+      toastError("Couldn't create series", message);
+      return;
     }
+
+    try {
+      await generateVideo.mutateAsync(created.id);
+      toastSuccess("Series created!", "Your video is generating now — check the Videos page in a few minutes.");
+    } catch (err) {
+      const message = err instanceof ApiError ? err.message : "Something went wrong starting generation.";
+      toastError("Series created, but generation didn't start", `${message} Check the Videos page — if nothing shows up, delete and recreate the series.`);
+    }
+    reset();
+    router.push("/videos");
   };
 
   return (
@@ -262,7 +281,13 @@ export default function SeriesEffectsPage() {
         onBack={() => router.push("/series/style")}
         onContinue={handleCreate}
         continueLabel={
-          isSaving ? (isEditing ? "Saving..." : "Creating...") : isEditing ? "Save changes" : "Create"
+          isSaving
+            ? isEditing
+              ? "Saving..."
+              : "Creating & generating..."
+            : isEditing
+            ? "Save changes"
+            : "Create & Generate"
         }
       />
     </div>

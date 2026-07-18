@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import { Loader2, MoreHorizontal, Pause, Play, Plus, Sparkles, SquarePen, Trash2 } from "lucide-react";
 import {
   useSeriesList,
-  useGenerateVideo,
   useToggleSeries,
   useDeleteSeries,
 } from "@/hooks/useSeries";
@@ -20,7 +19,6 @@ import type { Series } from "@/hooks/useSeries";
 function SeriesRow({ series }: { series: Series }) {
   const router = useRouter();
   const { reset } = useSeriesDraft();
-  const generateVideo = useGenerateVideo();
   const toggleSeries = useToggleSeries();
   const deleteSeries = useDeleteSeries();
   const { success: toastSuccess, error: toastError } = useToast();
@@ -29,16 +27,6 @@ function SeriesRow({ series }: { series: Series }) {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   useClickOutside(menuRef, () => setMenuOpen(false));
-
-  const handleGenerate = async () => {
-    try {
-      await generateVideo.mutateAsync(series.id);
-      toastSuccess("Video generation started!", "Check the Videos page in a few minutes.");
-    } catch (err) {
-      const message = err instanceof ApiError ? err.message : "Something went wrong. Please try again.";
-      toastError("Couldn't start generation", message);
-    }
-  };
 
   const handleEdit = () => {
     setMenuOpen(false);
@@ -89,15 +77,6 @@ function SeriesRow({ series }: { series: Series }) {
       </div>
 
       <div className="shrink-0 flex items-center gap-2">
-        <button
-          onClick={handleGenerate}
-          disabled={generateVideo.isPending}
-          className="flex items-center gap-1.5 rounded-lg border border-[rgb(var(--border))] bg-[rgb(var(--card))] px-3 py-1.5 text-[12px] font-medium text-[rgb(var(--foreground))] hover:bg-[rgb(var(--muted))] transition-colors disabled:opacity-60"
-        >
-          {generateVideo.isPending && <Loader2 size={12} className="animate-spin" />}
-          Generate Video
-        </button>
-
         <div className="relative" ref={menuRef}>
           <button
             onClick={() => setMenuOpen((p) => !p)}
