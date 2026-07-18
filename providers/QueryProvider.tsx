@@ -9,6 +9,13 @@ function makeQueryClient() {
     defaultOptions: {
       queries: {
         staleTime: 60_000,
+        // apiFetch() already does its own one-shot refresh-and-retry on a
+        // 401 internally — React Query retrying on top of that (default: 3x
+        // with backoff) double-amplifies every failure. A single broken
+        // session on page load could fire 8-9+ requests instead of 1-2,
+        // repeatedly re-triggering /auth/refresh and blowing through rate
+        // limits before the user does anything at all.
+        retry: false,
       },
     },
   });
