@@ -15,7 +15,7 @@ export function ModeToggle() {
   return (
     <button
       onClick={() => setTheme(isDark ? "light" : "dark")}
-      className="relative w-9 h-9 rounded-xl border border-[rgb(var(--border))] bg-[rgb(var(--card))] flex items-center justify-center overflow-hidden hover:bg-[rgb(var(--muted))] transition-colors"
+      className="relative w-9 h-9 rounded-xl border border-[rgb(var(--border))] bg-[rgb(var(--card))] flex items-center justify-center overflow-hidden hover:bg-[rgb(var(--muted))] transition-colors cursor-pointer"
       aria-label="Toggle theme"
     >
       <Sun

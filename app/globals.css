@@ -214,3 +214,22 @@ input:-webkit-autofill:focus {
 .toast-animate {
   animation: toast-in 0.2s ease-out forwards;
 }
+
+/* ======================
+   PREVENT iOS AUTO-ZOOM ON INPUT FOCUS
+   Safari zooms the page in whenever a focused input's font-size is under
+   16px, then doesn't always zoom back out cleanly on blur — the "page
+   zooms in and overflows" behavior. Most inputs in this app use 12-14px
+   text (text-sm/text-[12px], a deliberate compact design choice), which
+   sits right under that threshold. Rather than bumping every individual
+   input's Tailwind class — easy to forget on new ones — this overrides
+   font-size specifically on mobile viewports, where it actually matters;
+   desktop keeps the smaller, denser sizing untouched.
+====================== */
+@media (max-width: 767px) {
+  input,
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+}

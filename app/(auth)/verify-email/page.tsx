@@ -152,7 +152,7 @@ function VerifyEmailForm() {
         <button
           type="submit"
           disabled={loading}
-          className="flex w-full items-center justify-center gap-2 rounded-lg bg-[rgb(var(--primary))] py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-60"
+          className="flex w-full items-center justify-center gap-2 rounded-lg bg-[rgb(var(--primary))] py-2.5 text-sm font-semibold text-white transition hover:opacity-90 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
         >
           {loading && <Loader2 className="h-4 w-4 animate-spin" />}
           {loading ? "Verifying..." : "Verify email"}
@@ -167,7 +167,7 @@ function VerifyEmailForm() {
           <button
             onClick={handleResend}
             disabled={resending}
-            className="inline-flex items-center gap-1 font-medium text-[rgb(var(--primary))] hover:underline disabled:opacity-60"
+            className="inline-flex items-center gap-1 font-medium text-[rgb(var(--primary))] hover:underline cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {resending && <RefreshCw className="h-3 w-3 animate-spin" />}
             Resend code

@@ -172,7 +172,7 @@ export function MobileSidebar({
           <AppLogo size="md" />
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg hover:bg-[rgb(var(--muted))] transition-colors"
+            className="p-1.5 rounded-lg hover:bg-[rgb(var(--muted))] transition-colors cursor-pointer"
           >
             <X size={16} className="text-[rgb(var(--muted-foreground))]" />
           </button>

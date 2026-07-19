@@ -25,7 +25,7 @@ const PasswordInput = forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTM
           type="button"
           onClick={() => setShow((p) => !p)}
           tabIndex={-1}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-[rgb(var(--muted-foreground))] hover:text-[rgb(var(--foreground))] transition-colors"
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-[rgb(var(--muted-foreground))] hover:text-[rgb(var(--foreground))] transition-colors cursor-pointer"
         >
           {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
         </button>

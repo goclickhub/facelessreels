@@ -6,14 +6,17 @@ import { useSeriesList } from "@/hooks/useSeries";
 import { useVideosList } from "@/hooks/useVideos";
 
 export default function StatCards() {
-  const { data: series } = useSeriesList();
-  const { data: videosData } = useVideosList();
+  // .total on both is the real count across all pages — a fetched .data
+  // array is capped at whatever page size is requested, so counting off
+  // .data.length alone would silently under-report past that many records.
+  const { data: seriesData } = useSeriesList(1, 100);
+  const { data: videosData } = useVideosList({ limit: 100 });
   const videos = videosData?.data ?? [];
   const readyCount = videos.filter((v) => v.status === "ready" || v.status === "published").length;
 
   const cards = [
-    { id: "series", label: "Total Series", value: series?.length ?? 0, icon: Layers, bg: "bg-[rgb(var(--stat-pink))]" },
-    { id: "videos", label: "Total Videos", value: videos.length, icon: Video, bg: "bg-[rgb(var(--stat-yellow))]" },
+    { id: "series", label: "Total Series", value: seriesData?.total ?? 0, icon: Layers, bg: "bg-[rgb(var(--stat-pink))]" },
+    { id: "videos", label: "Total Videos", value: videosData?.total ?? 0, icon: Video, bg: "bg-[rgb(var(--stat-yellow))]" },
     { id: "ready", label: "Videos Ready", value: readyCount, icon: CheckCircle2, bg: "bg-[rgb(var(--stat-green))]" },
   ];
 

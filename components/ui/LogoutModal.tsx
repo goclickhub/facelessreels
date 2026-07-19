@@ -24,13 +24,13 @@ export function LogoutModal({ onConfirm, onCancel }: LogoutModalProps) {
         <div className="flex gap-3">
           <button
             onClick={onCancel}
-            className="flex-1 h-10 rounded-xl border border-[rgb(var(--border))] text-[13px] font-semibold text-[rgb(var(--foreground))] hover:bg-[rgb(var(--muted))] transition-colors"
+            className="flex-1 h-10 rounded-xl border border-[rgb(var(--border))] text-[13px] font-semibold text-[rgb(var(--foreground))] hover:bg-[rgb(var(--muted))] transition-colors cursor-pointer"
           >
             No, cancel
           </button>
           <button
             onClick={onConfirm}
-            className="flex-1 h-10 rounded-xl bg-[rgb(var(--primary))] text-white text-[13px] font-semibold hover:opacity-90 transition-opacity"
+            className="flex-1 h-10 rounded-xl bg-[rgb(var(--primary))] text-white text-[13px] font-semibold hover:opacity-90 transition-opacity cursor-pointer"
           >
             Yes, log out
           </button>

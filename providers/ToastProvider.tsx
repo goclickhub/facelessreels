@@ -68,7 +68,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
             </div>
             <button
               onClick={() => remove(t.id)}
-              className="shrink-0 text-[rgb(var(--muted-foreground))] hover:text-[rgb(var(--foreground))] transition-colors"
+              className="shrink-0 text-[rgb(var(--muted-foreground))] hover:text-[rgb(var(--foreground))] transition-colors cursor-pointer"
             >
               <X className="h-3.5 w-3.5" />
             </button>

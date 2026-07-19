@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "@/lib/api";
 import { queryKeys } from "@/lib/queryKeys";
 import type { VideoStatus, VideoPlatform } from "@/types";
@@ -19,18 +19,36 @@ export interface Video {
   createdAt: string;
 }
 
-interface VideosListResponse {
+export interface VideosListResponse {
   data: Video[];
   total: number;
   page: number;
 }
 
 const IN_PROGRESS_STATUSES: VideoStatus[] = ["queued", "processing"];
+const DEFAULT_LIMIT = 20;
 
-export function useVideosList() {
+interface UseVideosListParams {
+  page?: number;
+  limit?: number;
+  platform?: VideoPlatform;
+  search?: string;
+}
+
+export function useVideosList(params: UseVideosListParams = {}) {
+  const { page = 1, limit = DEFAULT_LIMIT, platform, search } = params;
+
   return useQuery({
-    queryKey: queryKeys.videos.all(),
-    queryFn: () => apiFetch<VideosListResponse>("/videos"),
+    queryKey: queryKeys.videos.list({ page, limit, platform, search }),
+    queryFn: () => {
+      const qs = new URLSearchParams({ page: String(page), limit: String(limit) });
+      if (platform) qs.set("platform", platform);
+      if (search) qs.set("search", search);
+      return apiFetch<VideosListResponse>(`/videos?${qs.toString()}`);
+    },
+    // Keeps showing the previous page's data while the next page loads,
+    // instead of flashing the loading state on every page/filter change.
+    placeholderData: keepPreviousData,
     // Generation runs for minutes in the background — keep polling while
     // anything is still in flight so the list updates without a manual refresh.
     // Only polls off a successful fetch: if a request is failing (e.g. an

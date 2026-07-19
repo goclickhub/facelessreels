@@ -62,7 +62,7 @@ const FAQS = [
   },
   {
     q: "Can I edit a video after it's generated?",
-    a: "Yes — navigate to Videos, open the video, and use the editor to trim, re-narrate, or swap effects before publishing.",
+    a: "There's no in-app video editor. If a video isn't quite right, you can regenerate it from the same series to get a fresh take with the same style and settings.",
   },
   {
     q: "Which platforms can I publish to?",
@@ -70,7 +70,7 @@ const FAQS = [
   },
   {
     q: "Is there a limit on how many videos I can create?",
-    a: "Free accounts can generate up to 10 videos per month. Upgrade to Pro or Business for unlimited generation.",
+    a: "Limits depend on your plan — check the Upgrade page for current details.",
   },
 ];
 

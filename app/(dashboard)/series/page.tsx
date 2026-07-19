@@ -7,7 +7,7 @@ import { StepSection } from "@/components/series/StepSection";
 import { FooterNav } from "@/components/series/FooterNav";
 import { SERIES_NICHES, SERIES_ART_STYLES, SERIES_EFFECTS } from "@/lib/data";
 import { useSeriesDraft } from "@/providers/SeriesDraftProvider";
-import { useSeriesList } from "@/hooks/useSeries";
+import { useSeriesDetail } from "@/hooks/useSeries";
 import { useToast } from "@/hooks/useToast";
 import type { SeriesStep } from "@/types";
 import type { TabValue } from "@/components/series/TabSwitch";
@@ -61,7 +61,11 @@ function SeriesPageGate() {
   const searchParams = useSearchParams();
   const editId = searchParams.get("edit");
   const { draft, update, loadFromSeries } = useSeriesDraft();
-  const { data: seriesList, isLoading: seriesLoading } = useSeriesList();
+  // Fetches the one series being edited directly by id, independent of
+  // whatever page the Dashboard's (now paginated) series list happens to be
+  // showing — searching a single fetched page would miss series sitting on
+  // any other page.
+  const { data: seriesDetail, isError } = useSeriesDetail(editId);
   const { error: toastError } = useToast();
 
   // True once the draft already holds this exact series' data — stays true across
@@ -74,17 +78,16 @@ function SeriesPageGate() {
       if (draft.editingSeriesId) update({ editingSeriesId: null });
       return;
     }
-    if (alreadyLoaded || !seriesList) return;
+    if (alreadyLoaded) return;
 
-    const existing = seriesList.find((s) => s.id === editId);
-    if (existing) {
-      loadFromSeries(existing);
-    } else if (!seriesLoading) {
+    if (seriesDetail) {
+      loadFromSeries(seriesDetail);
+    } else if (isError) {
       toastError("Series not found", "That series doesn't exist or was removed.");
       router.replace("/dashboard");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editId, seriesList, seriesLoading, alreadyLoaded]);
+  }, [editId, seriesDetail, isError, alreadyLoaded]);
 
   const ready = !editId || alreadyLoaded;
   if (!ready) return <LoadingState />;

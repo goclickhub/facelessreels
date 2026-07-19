@@ -29,7 +29,7 @@ export function TabSwitch({ active, onChange, tabs = DEFAULT_TABS }: TabSwitchPr
           key={tab.value}
           onClick={() => onChange(tab.value)}
           className={cn(
-            "flex items-center gap-1.5 py-2 pr-6 text-sm font-medium border-b-2 -mb-px transition-colors",
+            "flex items-center gap-1.5 py-2 pr-6 text-sm font-medium border-b-2 -mb-px transition-colors cursor-pointer",
             active === tab.value
               ? "border-[rgb(var(--primary))] text-[rgb(var(--primary))]"
               : "border-transparent text-[rgb(var(--muted-foreground))] hover:text-[rgb(var(--foreground))]",

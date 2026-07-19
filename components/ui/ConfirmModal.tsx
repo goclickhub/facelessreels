@@ -40,14 +40,14 @@ export function ConfirmModal({
           <button
             onClick={onCancel}
             disabled={loading}
-            className="flex-1 h-10 rounded-xl border border-[rgb(var(--border))] text-[13px] font-semibold text-[rgb(var(--foreground))] hover:bg-[rgb(var(--muted))] transition-colors disabled:opacity-60"
+            className="flex-1 h-10 rounded-xl border border-[rgb(var(--border))] text-[13px] font-semibold text-[rgb(var(--foreground))] hover:bg-[rgb(var(--muted))] transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {cancelLabel}
           </button>
           <button
             onClick={onConfirm}
             disabled={loading}
-            className={`flex-1 h-10 rounded-xl text-white text-[13px] font-semibold hover:opacity-90 transition-opacity disabled:opacity-60 flex items-center justify-center gap-1.5 ${
+            className={`flex-1 h-10 rounded-xl text-white text-[13px] font-semibold hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-1.5 ${
               danger ? "bg-red-600" : "bg-[rgb(var(--primary))]"
             }`}
           >

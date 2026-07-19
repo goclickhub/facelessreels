@@ -1,4 +1,4 @@
-import { Film } from "lucide-react";
+import AppLogo from "@/components/ui/AppLogo";
 
 export default function GuideBanner() {
   return (
@@ -9,9 +9,7 @@ export default function GuideBanner() {
         border: "1px solid rgb(var(--primary) / 0.18)",
       }}
     >
-      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[rgb(var(--primary))] text-white">
-        <Film size={24} />
-      </div>
+      <AppLogo size="lg" showLabel={false} />
       <div className="space-y-1">
         <p className="text-[14px] font-bold text-[rgb(var(--foreground))]">
           Welcome to FacelessReels

@@ -7,7 +7,6 @@ import { Mail, User, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/useToast";
 import { useAuth } from "@/hooks/useAuth";
 import { ApiError } from "@/lib/api";
-import GoogleButton from "@/components/shared/GoogleButton";
 import PasswordInput from "@/components/shared/PasswordInput";
 
 const inputCls =
@@ -50,14 +49,6 @@ export default function SignUpPage() {
         <p className="text-sm text-[rgb(var(--muted-foreground))]">
           Start creating faceless reels in minutes
         </p>
-      </div>
-
-      <GoogleButton label="Sign up with Google" />
-
-      <div className="relative flex items-center gap-3">
-        <div className="h-px flex-1 bg-[rgb(var(--border))]" />
-        <span className="text-xs text-[rgb(var(--muted-foreground))]">or continue with email</span>
-        <div className="h-px flex-1 bg-[rgb(var(--border))]" />
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -149,7 +140,7 @@ export default function SignUpPage() {
         <button
           type="submit"
           disabled={loading}
-          className="flex w-full items-center justify-center gap-2 rounded-lg bg-[rgb(var(--primary))] py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-60"
+          className="flex w-full items-center justify-center gap-2 rounded-lg bg-[rgb(var(--primary))] py-2.5 text-sm font-semibold text-white transition hover:opacity-90 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
         >
           {loading && <Loader2 className="h-4 w-4 animate-spin" />}
           {loading ? "Creating account..." : "Create free account"}

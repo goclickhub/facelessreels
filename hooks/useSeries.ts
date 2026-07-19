@@ -1,6 +1,7 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "@/lib/api";
 import { queryKeys } from "@/lib/queryKeys";
+import type { VideoStatus } from "@/types";
 
 export interface CreateSeriesInput {
   name: string;
@@ -21,14 +22,38 @@ export interface Series extends CreateSeriesInput {
   id: string;
   userId: string;
   active: boolean;
+  // Status of the series' most recently generated video, if any. Used to show
+  // a real outcome (Failed/Generating/Ready) instead of just Active/Paused,
+  // which says nothing about whether the video actually worked.
+  latestVideoStatus: VideoStatus | null;
   createdAt: string;
   updatedAt: string;
 }
 
-export function useSeriesList() {
+interface SeriesListResponse {
+  data: Series[];
+  total: number;
+  page: number;
+}
+
+const DEFAULT_LIMIT = 20;
+
+export function useSeriesList(page: number = 1, limit: number = DEFAULT_LIMIT) {
   return useQuery({
-    queryKey: queryKeys.series.all(),
-    queryFn: () => apiFetch<Series[]>("/series"),
+    queryKey: queryKeys.series.list({ page, limit }),
+    queryFn: () => apiFetch<SeriesListResponse>(`/series?page=${page}&limit=${limit}`),
+    placeholderData: keepPreviousData,
+  });
+}
+
+// For looking up a single series by id (the edit flow) — independent of
+// whatever page the Dashboard's list happens to be on, so editing works
+// correctly regardless of pagination.
+export function useSeriesDetail(id: string | null) {
+  return useQuery({
+    queryKey: queryKeys.series.detail(id ?? ""),
+    queryFn: () => apiFetch<Series>(`/series/${id}`),
+    enabled: id !== null,
   });
 }
 

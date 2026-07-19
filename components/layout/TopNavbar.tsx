@@ -22,7 +22,7 @@ export default function TopNavbar({
       {/* Mobile: hamburger */}
       <button
         onClick={onMenuClick}
-        className="md:hidden p-2 rounded-md hover:bg-[rgb(var(--muted))] transition-colors shrink-0"
+        className="md:hidden p-2 rounded-md hover:bg-[rgb(var(--muted))] transition-colors shrink-0 cursor-pointer"
         aria-label="Open menu"
       >
         <Menu size={20} className="text-[rgb(var(--foreground))]" />

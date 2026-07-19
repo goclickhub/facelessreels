@@ -36,7 +36,7 @@ export function MusicList({ tracks, selected, onSelect }: MusicListProps) {
       {/* Trigger — always visible */}
       <button
         onClick={() => setOpen((v) => !v)}
-        className="w-full flex items-center gap-3 px-4 py-3.5 bg-[rgb(var(--card))] hover:bg-[rgb(var(--muted))] transition-colors text-left"
+        className="w-full flex items-center gap-3 px-4 py-3.5 bg-[rgb(var(--card))] hover:bg-[rgb(var(--muted))] transition-colors text-left cursor-pointer"
       >
         <TrackIcon color={current.color} />
         <div className="flex-1 min-w-0">
@@ -57,7 +57,7 @@ export function MusicList({ tracks, selected, onSelect }: MusicListProps) {
               <button
                 onClick={() => { onSelect(track.id); setOpen(false); }}
                 className={cn(
-                  "w-full flex items-center gap-3 px-4 py-3.5 text-left transition-colors",
+                  "w-full flex items-center gap-3 px-4 py-3.5 text-left transition-colors cursor-pointer",
                   track.id === selected
                     ? "bg-[rgb(var(--secondary))]"
                     : "hover:bg-[rgb(var(--muted))]",

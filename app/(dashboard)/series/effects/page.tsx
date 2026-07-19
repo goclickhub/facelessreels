@@ -173,7 +173,7 @@ export default function SeriesEffectsPage() {
                 onClick={() =>
                   toastSuccess("Coming soon", "Connecting social accounts isn't available yet.")
                 }
-                className="flex items-center gap-2 px-5 py-2.5 rounded-lg border border-[rgb(var(--border))] bg-[rgb(var(--background))] text-sm font-medium text-[rgb(var(--foreground))] hover:bg-[rgb(var(--muted))] transition-colors"
+                className="flex items-center gap-2 px-5 py-2.5 rounded-lg border border-[rgb(var(--border))] bg-[rgb(var(--background))] text-sm font-medium text-[rgb(var(--foreground))] hover:bg-[rgb(var(--muted))] transition-colors cursor-pointer"
               >
                 Connect your first account
                 <PlusCircle size={16} className="text-[rgb(var(--foreground))]" />

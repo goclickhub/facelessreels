@@ -75,7 +75,7 @@ export default function PlanCard({ plan, billing, description, highlighted, badg
       <button
         onClick={handleClick}
         disabled={disabled}
-        className={`flex w-full items-center justify-center rounded-xl py-2.5 text-[13px] font-bold transition-opacity hover:opacity-90 ${
+        className={`flex w-full items-center justify-center rounded-xl py-2.5 text-[13px] font-bold transition-opacity hover:opacity-90 cursor-pointer ${
           hl
             ? "bg-white text-[rgb(var(--primary))]"
             : disabled

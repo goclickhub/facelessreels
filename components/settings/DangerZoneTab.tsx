@@ -46,14 +46,14 @@ function DeleteAccountModal({ onCancel }: { onCancel: () => void }) {
         <div className="flex gap-3">
           <button
             onClick={onCancel}
-            className="flex-1 h-10 rounded-xl border border-[rgb(var(--border))] text-[13px] font-semibold text-[rgb(var(--foreground))] hover:bg-[rgb(var(--muted))] transition-colors"
+            className="flex-1 h-10 rounded-xl border border-[rgb(var(--border))] text-[13px] font-semibold text-[rgb(var(--foreground))] hover:bg-[rgb(var(--muted))] transition-colors cursor-pointer"
           >
             Cancel
           </button>
           <button
             onClick={handleConfirm}
             disabled={deleteAccountMutation.isPending}
-            className="flex-1 h-10 flex items-center justify-center gap-2 rounded-xl bg-red-600 text-white text-[13px] font-semibold hover:bg-red-700 transition-colors disabled:opacity-60"
+            className="flex-1 h-10 flex items-center justify-center gap-2 rounded-xl bg-red-600 text-white text-[13px] font-semibold hover:bg-red-700 transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {deleteAccountMutation.isPending && <Loader2 size={13} className="animate-spin" />}
             Delete

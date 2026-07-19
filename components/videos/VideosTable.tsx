@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Film, Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { ChevronLeft, ChevronRight, Film, Loader2 } from "lucide-react";
 import type { VideoRow as VideoRowType, VideoPlatform } from "@/types";
 import { useVideosList } from "@/hooks/useVideos";
 import type { Video } from "@/hooks/useVideos";
@@ -9,7 +9,7 @@ import VideoFilters from "./VideoFilters";
 import VideoRow from "./VideoRow";
 
 const TABLE_HEADERS = ["Title", "Series", "Platform", "Status", "Views", ""];
-
+const PAGE_SIZE = 10;
 const IN_PROGRESS = new Set(["queued", "processing"]);
 
 function toVideoRow(video: Video): VideoRowType {
@@ -31,14 +31,32 @@ function toVideoRow(video: Video): VideoRowType {
 export default function VideosTable() {
   const [tab, setTab] = useState<VideoPlatform | "all">("all");
   const [search, setSearch] = useState("");
-  const { data, isLoading } = useVideosList();
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [page, setPage] = useState(1);
 
-  const allVideos = (data?.data ?? []).map(toVideoRow);
-  const filtered = allVideos.filter((v) => {
-    const matchPlatform = tab === "all" || v.platform === tab;
-    const matchSearch = v.title.toLowerCase().includes(search.toLowerCase());
-    return matchPlatform && matchSearch;
+  // Debounce so typing doesn't fire a request per keystroke.
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedSearch(search), 300);
+    return () => clearTimeout(t);
+  }, [search]);
+
+  // Filtering server-side now means the current page becomes invalid
+  // whenever the filter changes — reset to page 1 so we don't end up
+  // requesting an out-of-range page against the new, smaller result set.
+  useEffect(() => {
+    setPage(1);
+  }, [tab, debouncedSearch]);
+
+  const { data, isLoading, isPlaceholderData } = useVideosList({
+    page,
+    limit: PAGE_SIZE,
+    platform: tab === "all" ? undefined : tab,
+    search: debouncedSearch || undefined,
   });
+
+  const videos = (data?.data ?? []).map(toVideoRow);
+  const total = data?.total ?? 0;
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   return (
     <div className="space-y-4">
@@ -50,8 +68,8 @@ export default function VideosTable() {
       />
 
       <div className="rounded-xl bg-[rgb(var(--card))] border border-[rgb(var(--border))] overflow-hidden">
-        {/* Header */}
-        <div className="grid grid-cols-[1fr_120px_100px_80px_80px_36px] gap-3 px-4 py-2.5 border-b border-[rgb(var(--border))] bg-[rgb(var(--muted))]">
+        {/* Header — desktop/tablet only, mobile rows are self-labeled cards */}
+        <div className="hidden sm:grid grid-cols-[1fr_120px_100px_80px_80px_36px] gap-3 px-4 py-2.5 border-b border-[rgb(var(--border))] bg-[rgb(var(--muted))]">
           {TABLE_HEADERS.map((h, i) => (
             <span key={i} className="text-[11px] font-medium text-[rgb(var(--muted-foreground))]">
               {h}
@@ -64,19 +82,43 @@ export default function VideosTable() {
             <Loader2 size={28} className="text-[rgb(var(--muted-foreground))] animate-spin" />
             <p className="text-[13px] text-[rgb(var(--muted-foreground))]">Loading videos…</p>
           </div>
-        ) : filtered.length === 0 ? (
+        ) : videos.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 gap-2">
             <Film size={28} className="text-[rgb(var(--muted-foreground))]" />
             <p className="text-[13px] text-[rgb(var(--muted-foreground))]">No videos found</p>
           </div>
         ) : (
           <div className="divide-y divide-[rgb(var(--border))]">
-            {filtered.map((video) => (
+            {videos.map((video) => (
               <VideoRow key={video.id} video={video} />
             ))}
           </div>
         )}
       </div>
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between gap-3">
+          <p className="text-[12px] text-[rgb(var(--muted-foreground))]">
+            Page {page} of {totalPages} · {total} video{total === 1 ? "" : "s"}
+          </p>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page <= 1}
+              className="flex items-center gap-1 h-8 px-3 rounded-lg border border-[rgb(var(--border))] bg-[rgb(var(--card))] text-[12px] font-medium text-[rgb(var(--foreground))] hover:bg-[rgb(var(--muted))] transition-colors cursor-pointer disabled:opacity-50 disabled:pointer-events-none"
+            >
+              <ChevronLeft size={14} /> Prev
+            </button>
+            <button
+              onClick={() => setPage((p) => (isPlaceholderData ? p : Math.min(totalPages, p + 1)))}
+              disabled={page >= totalPages}
+              className="flex items-center gap-1 h-8 px-3 rounded-lg border border-[rgb(var(--border))] bg-[rgb(var(--card))] text-[12px] font-medium text-[rgb(var(--foreground))] hover:bg-[rgb(var(--muted))] transition-colors cursor-pointer disabled:opacity-50 disabled:pointer-events-none"
+            >
+              Next <ChevronRight size={14} />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -36,7 +36,7 @@ function PanelHeader({
       {showClose && (
         <button
           onClick={onClose}
-          className="p-1 rounded-lg hover:bg-[rgb(var(--muted))] transition-colors"
+          className="p-1 rounded-lg hover:bg-[rgb(var(--muted))] transition-colors cursor-pointer"
         >
           <X size={16} className="text-[rgb(var(--foreground))]" />
         </button>

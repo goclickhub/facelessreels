@@ -27,7 +27,7 @@ export function InlineSelect({ options, value, onChange }: InlineSelectProps) {
       {/* Trigger */}
       <button
         onClick={() => setOpen((v) => !v)}
-        className="w-full flex items-center gap-3 px-4 py-3 bg-[rgb(var(--card))] hover:bg-[rgb(var(--muted))] transition-colors text-left"
+        className="w-full flex items-center gap-3 px-4 py-3 bg-[rgb(var(--card))] hover:bg-[rgb(var(--muted))] transition-colors text-left cursor-pointer"
       >
         <div className="shrink-0">{selected.icon}</div>
         <span className="flex-1 text-sm font-medium text-[rgb(var(--foreground))]">
@@ -50,7 +50,7 @@ export function InlineSelect({ options, value, onChange }: InlineSelectProps) {
               <button
                 onClick={() => { onChange(option.id); setOpen(false); }}
                 className={cn(
-                  "w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors",
+                  "w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors cursor-pointer",
                   option.id === value
                     ? "bg-[rgb(var(--secondary))]"
                     : "hover:bg-[rgb(var(--muted))]",
