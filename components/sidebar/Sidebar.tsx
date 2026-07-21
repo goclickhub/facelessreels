@@ -8,11 +8,18 @@ import { NavIcon } from "@/lib/icons";
 import AppLogo from "@/components/ui/AppLogo";
 import { Separator } from "@/components/ui/separator";
 import { SIDEBAR_ITEMS } from "@/lib/data";
+import { useAuth } from "@/hooks/useAuth";
 import type { NavItem } from "@/types";
 
 function isActivePath(pathname: string, href: string | undefined): boolean {
   if (!href) return false;
   return pathname === href || pathname.startsWith(`${href}/`);
+}
+
+// adminOnly items never render for non-admins — not just visually hidden.
+function useVisibleSidebarItems(): NavItem[] {
+  const { user } = useAuth();
+  return SIDEBAR_ITEMS.filter((item) => !item.adminOnly || user?.role === "admin");
 }
 
 /* ─── Shared upgrade section ─── */
@@ -107,6 +114,7 @@ function TabletNavRow({ item }: { item: NavItem }) {
 
 /* ─── Desktop sidebar (≥ lg) ─── */
 export function DesktopSidebar() {
+  const items = useVisibleSidebarItems();
   return (
     <aside className="w-60 h-full flex flex-col bg-[rgb(var(--sidebar-bg))] border-r border-[rgb(var(--border))] shrink-0">
       <div className="h-16 flex items-center px-5 border-b border-[rgb(var(--border))] shrink-0">
@@ -116,7 +124,7 @@ export function DesktopSidebar() {
       </div>
 
       <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
-        {SIDEBAR_ITEMS.map((item) => (
+        {items.map((item) => (
           <NavRow key={item.id} item={item} />
         ))}
       </nav>
@@ -128,6 +136,7 @@ export function DesktopSidebar() {
 
 /* ─── Tablet sidebar — icon-only, expands on hover as floating overlay ─── */
 export function TabletSidebar() {
+  const items = useVisibleSidebarItems();
   return (
     <aside className="flex h-full flex-col bg-[rgb(var(--sidebar-bg))]">
       {/* Logo */}
@@ -141,7 +150,7 @@ export function TabletSidebar() {
       </div>
 
       <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
-        {SIDEBAR_ITEMS.map((item) => (
+        {items.map((item) => (
           <TabletNavRow key={item.id} item={item} />
         ))}
       </nav>
@@ -159,6 +168,7 @@ export function MobileSidebar({
   open: boolean;
   onClose: () => void;
 }) {
+  const items = useVisibleSidebarItems();
   if (!open) return null;
 
   return (
@@ -179,7 +189,7 @@ export function MobileSidebar({
         </div>
 
         <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
-          {SIDEBAR_ITEMS.map((item) => (
+          {items.map((item) => (
             <NavRow key={item.id} item={item} onClose={onClose} />
           ))}
         </nav>

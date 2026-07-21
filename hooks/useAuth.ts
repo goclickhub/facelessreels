@@ -7,6 +7,7 @@ export interface AuthUser {
   email: string;
   name: string;
   avatarUrl: string | null;
+  role: "user" | "admin";
   plan: string;
   emailVerified: boolean;
   createdAt: string;

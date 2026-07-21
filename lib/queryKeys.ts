@@ -19,4 +19,11 @@ export const queryKeys = {
   billing: {
     plans: () => ["billing", "plans"] as const,
   },
+  admin: {
+    stats: () => ["admin", "stats"] as const,
+    users: (params: { page: number; limit: number }) => ["admin", "users", params] as const,
+    series: (params: { page: number; limit: number }) => ["admin", "series", params] as const,
+    videos: (params: { page: number; limit: number; platform?: string; search?: string }) =>
+      ["admin", "videos", params] as const,
+  },
 };

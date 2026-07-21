@@ -13,6 +13,7 @@ export const SIDEBAR_ITEMS: NavItem[] = [
   { id: "guide", label: "Guide", icon: "book-open", href: "/guide" },
   { id: "videos", label: "Videos", icon: "film", href: "/videos" },
   { id: "settings", label: "Settings", icon: "settings", href: "/settings" },
+  { id: "admin", label: "Admin", icon: "shield", href: "/admin", adminOnly: true },
 ];
 
 export const NAVBAR_LINKS: {

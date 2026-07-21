@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const PROTECTED_PATHS = ["/dashboard", "/guide", "/my-account", "/series", "/settings", "/upgrade", "/videos"];
+const PROTECTED_PATHS = ["/dashboard", "/guide", "/my-account", "/series", "/settings", "/upgrade", "/videos", "/admin"];
 const AUTH_ONLY_PATHS = ["/sign-in", "/sign-up"];
 
 export function middleware(request: NextRequest) {
@@ -28,6 +28,7 @@ export const config = {
     "/settings/:path*",
     "/upgrade/:path*",
     "/videos/:path*",
+    "/admin/:path*",
     "/sign-in",
     "/sign-up",
   ],

@@ -25,6 +25,7 @@ import {
   Eye,
   Play,
   Globe,
+  Shield,
 } from "lucide-react";
 import type { LucideProps } from "lucide-react";
 
@@ -69,6 +70,7 @@ export const ICON_MAP: Record<string, IconComponent> = {
   eye: Eye,
   play: Play,
   globe: Globe,
+  shield: Shield,
 
   // Series wizard presets — illustrated (not flat line icons), so each card
   // reads as a small drawing matching its title rather than an abstract mark.
