@@ -26,6 +26,8 @@ export interface Series extends CreateSeriesInput {
   // a real outcome (Failed/Generating/Ready) instead of just Active/Paused,
   // which says nothing about whether the video actually worked.
   latestVideoStatus: VideoStatus | null;
+  // Only populated by the admin cross-user list.
+  ownerEmail?: string;
   createdAt: string;
   updatedAt: string;
 }

@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ChevronLeft, ChevronRight, Film, Loader2 } from "lucide-react";
+import { Film, Loader2 } from "lucide-react";
 import type { VideoRow as VideoRowType, VideoPlatform } from "@/types";
 import { useVideosList } from "@/hooks/useVideos";
 import type { Video } from "@/hooks/useVideos";
+import { Pagination } from "@/components/ui/Pagination";
 import VideoFilters from "./VideoFilters";
 import VideoRow from "./VideoRow";
 
@@ -20,6 +21,8 @@ function toVideoRow(video: Video): VideoRowType {
     series: video.seriesName,
     platform: video.platform,
     status: video.status,
+    progress: video.progress,
+    canResume: video.canResume,
     views: inProgress ? "—" : String(video.views),
     postedAt: inProgress
       ? "Processing…"
@@ -96,29 +99,14 @@ export default function VideosTable() {
         )}
       </div>
 
-      {totalPages > 1 && (
-        <div className="flex items-center justify-between gap-3">
-          <p className="text-[12px] text-[rgb(var(--muted-foreground))]">
-            Page {page} of {totalPages} · {total} video{total === 1 ? "" : "s"}
-          </p>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={page <= 1}
-              className="flex items-center gap-1 h-8 px-3 rounded-lg border border-[rgb(var(--border))] bg-[rgb(var(--card))] text-[12px] font-medium text-[rgb(var(--foreground))] hover:bg-[rgb(var(--muted))] transition-colors cursor-pointer disabled:opacity-50 disabled:pointer-events-none"
-            >
-              <ChevronLeft size={14} /> Prev
-            </button>
-            <button
-              onClick={() => setPage((p) => (isPlaceholderData ? p : Math.min(totalPages, p + 1)))}
-              disabled={page >= totalPages}
-              className="flex items-center gap-1 h-8 px-3 rounded-lg border border-[rgb(var(--border))] bg-[rgb(var(--card))] text-[12px] font-medium text-[rgb(var(--foreground))] hover:bg-[rgb(var(--muted))] transition-colors cursor-pointer disabled:opacity-50 disabled:pointer-events-none"
-            >
-              Next <ChevronRight size={14} />
-            </button>
-          </div>
-        </div>
-      )}
+      <Pagination
+        page={page}
+        totalPages={totalPages}
+        onPrev={() => setPage((p) => Math.max(1, p - 1))}
+        onNext={() => setPage((p) => Math.min(totalPages, p + 1))}
+        nextDisabled={isPlaceholderData}
+        label={`Page ${page} of ${totalPages} · ${total} video${total === 1 ? "" : "s"}`}
+      />
     </div>
   );
 }

@@ -11,11 +11,17 @@ export interface Video {
   title: string;
   platform: VideoPlatform;
   status: VideoStatus;
+  progress: number;
   views: number;
   durationSeconds: number;
   thumbnailUrl: string | null;
   videoUrl: string | null;
+  // Whether a failed video has a completed script/audio stage saved, so Retry
+  // can resume instead of redoing them.
+  canResume: boolean;
   publishedAt: string | null;
+  // Only populated by the admin cross-user list.
+  ownerEmail?: string;
   createdAt: string;
 }
 
@@ -68,6 +74,17 @@ export function useRegenerateVideo() {
 
   return useMutation({
     mutationFn: (videoId: string) => apiFetch<Video>(`/videos/${videoId}/regenerate`, { method: "POST" }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.videos.all() }),
+  });
+}
+
+// Resumes from the last completed stage instead of redoing script/audio —
+// only offered in the UI when video.canResume is true.
+export function useRetryVideo() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (videoId: string) => apiFetch<Video>(`/videos/${videoId}/retry`, { method: "POST" }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.videos.all() }),
   });
 }

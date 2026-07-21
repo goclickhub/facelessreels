@@ -6,6 +6,7 @@ export interface NavItem {
   badge?: number;
   hasDropdown?: boolean;
   children?: { id: string; label: string; href: string }[];
+  adminOnly?: boolean;
 }
 
 export interface SeriesItem {
@@ -57,6 +58,8 @@ export interface VideoRow {
   series: string;
   platform: VideoPlatform;
   status: VideoStatus;
+  progress: number;
+  canResume: boolean;
   views: string;
   postedAt: string;
   videoUrl: string | null;
