@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
 const PROTECTED_PATHS = ["/dashboard", "/guide", "/my-account", "/series", "/settings", "/upgrade", "/videos", "/admin"];
-const AUTH_ONLY_PATHS = ["/sign-in", "/sign-up"];
 
 export function middleware(request: NextRequest) {
   const hasSession = request.cookies.has("refreshToken");
@@ -12,10 +11,12 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/sign-in", request.url));
   }
 
-  if (AUTH_ONLY_PATHS.includes(pathname) && hasSession) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
-  }
-
+  // Deliberately no "redirect away from /sign-in if a cookie exists" check
+  // here — that used to redirect based on cookie *presence*, not validity,
+  // which meant a stale/expired cookie could bounce sign-in straight back to
+  // a dashboard that couldn't authenticate either, an infinite loop. The
+  // (auth) layout now handles "already logged in" redirects itself, based on
+  // a real validated session via useAuth().
   return NextResponse.next();
 }
 
@@ -29,7 +30,5 @@ export const config = {
     "/upgrade/:path*",
     "/videos/:path*",
     "/admin/:path*",
-    "/sign-in",
-    "/sign-up",
   ],
 };
